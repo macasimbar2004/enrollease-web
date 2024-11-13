@@ -3,7 +3,7 @@ import 'package:enrollease_web/states_management/side_menu_index_controller.dart
 import 'package:enrollease_web/utils/app_size.dart';
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/utils/logos.dart';
-import 'package:enrollease_web/utils/responsive_widget.dart';
+import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:enrollease_web/utils/text_validator.dart';
 import 'package:enrollease_web/widgets/custom_button.dart';
 import 'package:enrollease_web/widgets/custom_textformfields.dart';

@@ -4,7 +4,7 @@ import 'package:enrollease_web/paginated_table/table/new_users_table.dart';
 import 'package:enrollease_web/utils/app_size.dart';
 import 'package:enrollease_web/utils/bottom_credits.dart';
 import 'package:enrollease_web/utils/colors.dart';
-import 'package:enrollease_web/utils/responsive_widget.dart';
+import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:enrollease_web/utils/text_styles.dart';
 import 'package:enrollease_web/widgets/custom_card.dart';
 import 'package:enrollease_web/widgets/custom_header.dart';
@@ -46,12 +46,9 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: CustomDrawerHeader(
-                  headerName: 'dashboard',
-                  userId: widget.userId,
-                ),
+              CustomDrawerHeader(
+                headerName: 'dashboard',
+                userId: widget.userId,
               ),
               buildStatistics(statisticsData),
               const SizedBox(

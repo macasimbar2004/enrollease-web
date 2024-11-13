@@ -3,6 +3,7 @@ import 'package:enrollease_web/onboarding_page/approvals.dart';
 import 'package:enrollease_web/onboarding_page/dashboard.dart';
 import 'package:enrollease_web/onboarding_page/enrollments.dart';
 import 'package:enrollease_web/onboarding_page/important_notes.dart';
+import 'package:enrollease_web/onboarding_page/registrars.dart';
 import 'package:enrollease_web/onboarding_page/students.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:flutter/material.dart';
@@ -22,28 +23,42 @@ class ScreenSelectorController extends StatelessWidget {
 
         switch (selectedIndexScreen) {
           case 0:
-            selectedWidget =  Dashboard(
+            selectedWidget = Dashboard(
               userId: userId,
             );
             break;
 
           case 1:
-            selectedWidget =  Enrollments(userId: userId,);
+            selectedWidget = Registrars(
+              userId: userId,
+            );
             break;
 
           case 2:
-            selectedWidget =  Approvals(userId: userId,);
+            selectedWidget = Enrollments(
+              userId: userId,
+            );
             break;
 
           case 3:
-            selectedWidget =  Students(userId: userId,);
+            selectedWidget = Approvals(
+              userId: userId,
+            );
             break;
 
           case 4:
-            selectedWidget =  ImportantNotes(userId: userId,);
+            selectedWidget = Students(
+              userId: userId,
+            );
             break;
 
           case 5:
+            selectedWidget = ImportantNotes(
+              userId: userId,
+            );
+            break;
+
+          case 6:
             selectedWidget = AccountSettingsDashboard(
               userId: userId,
             );

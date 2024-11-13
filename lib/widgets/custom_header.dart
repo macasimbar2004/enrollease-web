@@ -2,7 +2,7 @@ import 'package:enrollease_web/account_screen/menu/account_setting.dart';
 import 'package:enrollease_web/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/utils/colors.dart';
-import 'package:enrollease_web/utils/responsive_widget.dart';
+import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,28 +40,31 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
 
     return DrawerHeader(
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide.none),
+        border: Border(
+          bottom: BorderSide.none,
+        ),
         color: CustomColors.contentColor,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (isSmallScreen || isMediumScreen)
-            IconButton(
-              onPressed: () {
-                context.read<SideMenuDrawerController>().controlMenu();
-              },
-              icon: const Icon(
-                Icons.menu,
-                color: Colors.white,
-              ),
-            ),
+          // if (isSmallScreen || isMediumScreen)
+          //   IconButton(
+          //     onPressed: () {
+          //       context.read<SideMenuDrawerController>().controlMenu();
+          //     },
+          //     icon: const Icon(
+          //       Icons.menu,
+          //       color: Colors.white,
+          //     ),
+          //   ),
           Visibility(
-            visible: (!menuProvider.isMenuVisible && isLargeScreen),
+            visible: (isSmallScreen),
             child: IconButton(
               onPressed: menuProvider.isButtonDisabled
                   ? null // Disable the button if true
-                  : () => menuProvider.toggleMenuVisibility(),
+                  : () =>
+                      context.read<SideMenuDrawerController>().controlMenu(),
               icon: const Icon(
                 Icons.menu,
                 color: Colors.white,
@@ -79,8 +82,8 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
               IconButton(
                 onPressed: () {
                   // Handle notification button press
-                  menuProvider.setSelectedIndex(4);
-                  menuProvider.setCurrentSelectedIndex(4);
+                  menuProvider.setSelectedIndex(5);
+                  menuProvider.setCurrentSelectedIndex(5);
                 },
                 icon: const Icon(
                   Icons.notifications,

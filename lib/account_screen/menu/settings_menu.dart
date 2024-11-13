@@ -23,7 +23,7 @@ class SettingsMenu extends StatelessWidget {
           _buildMenuItem(
             text: 'Account Setting',
             onTap: () {
-              context.read<SideMenuIndexController>().setSelectedIndex(5);
+              context.read<SideMenuIndexController>().setSelectedIndex(6);
               Navigator.pop(context);
             },
           ),

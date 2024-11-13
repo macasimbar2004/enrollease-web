@@ -8,7 +8,7 @@ class CustomTextFormField extends StatefulWidget {
   final TextEditingController controller;
   final TextEditingController? ageController; // Add age controller here
   final FocusNode? focusNode;
-  final String hintText;
+  final String? hintText;
   final IconData? iconData;
   final bool? toShowLabelText;
   final bool? isDateTime;
@@ -20,6 +20,7 @@ class CustomTextFormField extends StatefulWidget {
   final int? maxLength;
   final bool? toFillColor;
   final Color? fillColor;
+  final bool? maxLine;
 
   const CustomTextFormField(
       {super.key,
@@ -28,7 +29,7 @@ class CustomTextFormField extends StatefulWidget {
       required this.controller,
       this.ageController, // Initialize age controller
       this.focusNode,
-      required this.hintText,
+      this.hintText,
       this.iconData,
       this.toShowLabelText,
       this.isDateTime,
@@ -39,7 +40,8 @@ class CustomTextFormField extends StatefulWidget {
       this.validator,
       this.maxLength,
       this.toFillColor = false,
-      this.fillColor});
+      this.fillColor,
+      this.maxLine});
 
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
@@ -83,10 +85,11 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   Widget build(BuildContext context) {
     return TextFormField(
       style: const TextStyle(
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w400,
         color: Colors.black,
-        fontSize: 12.0,
+        fontSize: 16.0,
       ),
+      maxLines: widget.maxLine == true ? null : 1,
       obscureText: _toShow,
       controller: widget.controller,
       focusNode: widget.focusNode,
@@ -100,11 +103,11 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.white, width: 1.0),
+          borderSide: const BorderSide(color: Colors.grey, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+          borderSide: const BorderSide(color: Colors.blue, width: 1.0),
         ),
         prefixIcon: widget.toShowPrefixIcon ? Icon(widget.iconData) : null,
         suffixIcon: widget.toShowIcon && widget.iconDataSuffix != null
@@ -132,7 +135,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           color: Colors.black,
           fontSize: 12.0,
         ),
-        labelText: widget.hintText,
+        labelText: widget.toShowLabelText != null ? widget.hintText : null,
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w400,
           color: Colors.black,
@@ -146,17 +149,10 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       inputFormatters: widget.isPhoneNumber == true
           ? [FilteringTextInputFormatter.digitsOnly] // Restrict to digits only
           : null,
-      validator: widget.validator != null
-          ? (value) {
-              widget.validator;
-              return null;
-            }
-          : null,
+      validator: widget.validator,
     );
   }
 }
-
-
 
 TextFormField customTextFormField2(
     TextEditingController controller,
@@ -180,4 +176,24 @@ TextFormField customTextFormField2(
     focusNode: focusNode, // Assign the passed FocusNode
     onChanged: onChanged,
   );
+}
+
+class MyFormFieldWidget extends StatelessWidget {
+  final String hintText;
+
+  const MyFormFieldWidget({super.key, required this.hintText});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      enabled: false, // Makes the TextFormField non-interactive
+      decoration: InputDecoration(
+        hintText: hintText, // Displays generated ID as hint
+        hintStyle: const TextStyle(color: Colors.grey), // Hint text color gray
+        filled: true, // Optional: makes the background color filled
+        fillColor: Colors.grey[200], // Light gray background color
+        border: const OutlineInputBorder(), // Border for the TextFormField
+      ),
+    );
+  }
 }

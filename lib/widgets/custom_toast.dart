@@ -1,7 +1,7 @@
 import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:enrollease_web/utils/app_size.dart';
-import 'package:enrollease_web/utils/responsive_widget.dart';
+import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:delightful_toast/delight_toast.dart';
 
