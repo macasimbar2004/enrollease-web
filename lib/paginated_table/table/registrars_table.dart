@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:enrollease_web/paginated_table/data_source_stream/registrars_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/registars_table_source.dart';
+import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -21,21 +22,24 @@ class _RegistrarsTableState extends State<RegistrarsTable> {
   @override
   void initState() {
     super.initState();
-    streamController = StreamController<List<Map<String, dynamic>>>();
+    streamController = StreamController<List<Map<String, dynamic>>>.broadcast();
     _horizontalScrollController = ScrollController();
     registrarsStreamDataSource(context, streamController, _searchQuery);
   }
 
   void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-      registrarsStreamDataSource(context, streamController, _searchQuery);
-    });
+    if (mounted) {
+      setState(() {
+        _searchQuery = query;
+        registrarsStreamDataSource(context, streamController, _searchQuery);
+      });
+    }
   }
 
   @override
   void dispose() {
     _horizontalScrollController.dispose();
+    streamController.close();
     super.dispose();
   }
 
@@ -49,16 +53,16 @@ class _RegistrarsTableState extends State<RegistrarsTable> {
       stream: streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: SpinKitFadingCircle(
-              color: Colors.blue,
-              size: 34.0,
+              color: CustomColors.contentColor,
+              size: 100.0,
             ),
           );
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final data = snapshot.data!;
+          final data = snapshot.data ?? [];
 
           //debugPrint('fetched data: $data');
 
@@ -72,14 +76,13 @@ class _RegistrarsTableState extends State<RegistrarsTable> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 controller: _horizontalScrollController,
-                physics:
-                    const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+                physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minWidth: constraints.maxWidth,
                   ),
                   child: SizedBox(
-                    width: 1500,
+                    width: 1000,
                     child: PaginatedDataTable(
                       header: SearchTextformfields(
                         onSearch: _onSearchChanged,
@@ -89,8 +92,7 @@ class _RegistrarsTableState extends State<RegistrarsTable> {
                       rowsPerPage: 5,
                       dataRowMinHeight: 40,
                       dataRowMaxHeight: 86,
-                      columns:
-                          _buildDataColumns(), // Use helper function to build columns
+                      columns: _buildDataColumns(), // Use helper function to build columns
                     ),
                   ),
                 ),
@@ -106,10 +108,10 @@ class _RegistrarsTableState extends State<RegistrarsTable> {
   List<DataColumn> _buildDataColumns() {
     const columnLabels = [
       'Image',
-      'Identification #',
+      'ID #',
       'Fullname',
       'Contact #',
-      'Actions'
+      'Actions',
     ]; // Column labels
 
     // Map column labels to DataColumn widgets with common styles

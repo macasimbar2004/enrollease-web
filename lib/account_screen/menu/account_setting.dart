@@ -30,21 +30,23 @@ class AdminAccountSettingState extends State<AdminAccountSetting> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(width: 5),
-          Flexible(
-            fit: FlexFit.tight,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 100),
             child: Consumer<AccountDataController>(
               builder: (context, userData, child) {
                 return GestureDetector(
                   onTap: _showSettingsMenu,
-                  child: Text(
-                    userData.currentUserName ?? 'Welcome, User',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Text(
+                      userData.currentRegistrar != null ? '${userData.currentRegistrar!.lastName}, ${userData.currentRegistrar!.firstName}' : 'Welcome, User',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.right,
                     ),
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 );
               },
@@ -66,8 +68,7 @@ class AdminAccountSettingState extends State<AdminAccountSetting> {
           image: DecorationImage(
             image: image != null
                 ? MemoryImage(image) // Use Uint8List directly
-                : const AssetImage(CustomLogos.editProfileImage)
-                    as ImageProvider,
+                : const AssetImage(CustomLogos.editProfileImage) as ImageProvider,
             fit: BoxFit.cover,
           ),
         ),

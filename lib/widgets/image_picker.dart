@@ -28,7 +28,7 @@ class ImageService {
             children: [
               CircularProgressIndicator(),
               SizedBox(width: 20),
-              Text("Uploading Image..."),
+              Text('Uploading Image...'),
             ],
           ),
         );
@@ -48,7 +48,7 @@ class ImageService {
         return bytes;
       } else {
         if (kDebugMode) {
-          print("Image size is larger than 1MB");
+          print('Image size is larger than 1MB');
         }
         if (context.mounted) {
           DelightfulToast.showInfo(
@@ -57,7 +57,7 @@ class ImageService {
         return null;
       }
     } else {
-      if (kDebugMode) print("No image selected");
+      if (kDebugMode) print('No image selected');
       return null;
     }
   }

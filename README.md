@@ -1,6 +1,6 @@
 # Enrollease Web
 
-Enrollease Web is designed for school registrars to manage the enrollment process. It allows school staff to handle user (parent) registrations from the Enrollease mobile app, manage pending enrollments, track enrolled students, and manage notice boards or notifications for upcoming events.
+Enrollease Web is designed for school registrars to manage the enrollment process. It allows school staff to handle user (parent) registrations from the Enrollease mobile app, manage pending enrollments, track enrolled pupils, and manage notice boards or notifications for upcoming events.
 
 ## Getting Started
 

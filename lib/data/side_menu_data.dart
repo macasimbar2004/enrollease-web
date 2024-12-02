@@ -6,8 +6,7 @@ class SideMenuData {
     MenuModel(icon: Icons.space_dashboard, title: 'Dashboard'),
     MenuModel(icon: Icons.account_balance, title: 'Registrars'),
     MenuModel(icon: Icons.school, title: 'Enrollments'),
-    MenuModel(icon: Icons.verified, title: 'Approvals'),
-    MenuModel(icon: Icons.group, title: 'Students'),
-    MenuModel(icon: Icons.announcement, title: 'Important Notes'),
+    MenuModel(icon: Icons.account_balance_wallet, title: 'Statement of Account'),
+    MenuModel(icon: Icons.calendar_month, title: 'Academic Calendar'),
   ];
 }

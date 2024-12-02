@@ -1,5 +1,5 @@
 class RegistrarModel {
-  String identification;
+  String id;
   final String lastName;
   final String firstName;
   final String middleName;
@@ -14,26 +14,27 @@ class RegistrarModel {
   final String password;
   final String? jobLevel;
 
-  RegistrarModel(
-      {required this.identification,
-      required this.lastName,
-      required this.firstName,
-      required this.middleName,
-      required this.dateOfBirth,
-      required this.age,
-      required this.contact,
-      required this.placeOfBirth,
-      required this.address,
-      required this.email,
-      required this.remarks,
-      this.nameExtension,
-      required this.password,
-      this.jobLevel});
+  RegistrarModel({
+    required this.id,
+    required this.lastName,
+    required this.firstName,
+    required this.middleName,
+    required this.dateOfBirth,
+    required this.age,
+    required this.contact,
+    required this.placeOfBirth,
+    required this.address,
+    required this.email,
+    required this.remarks,
+    required this.password,
+    this.nameExtension = 'Select',
+    this.jobLevel = 'Registrar Staff',
+  });
 
   // Convert RegistrarModel to Map
   Map<String, dynamic> toMap() {
     return {
-      'identification': identification,
+      'id': id,
       'lastName': lastName,
       'firstName': firstName,
       'middleName': middleName,
@@ -46,7 +47,7 @@ class RegistrarModel {
       'remarks': remarks,
       'nameExtension': nameExtension,
       'jobLevel': jobLevel,
-      'password': password
+      'password': password,
     };
   }
 }

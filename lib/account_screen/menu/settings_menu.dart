@@ -1,8 +1,8 @@
-import 'package:enrollease_web/landing_page/sign_in.dart';
 import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SettingsMenu extends StatelessWidget {
@@ -10,12 +10,10 @@ class SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userID = context.read<AccountDataController>().userId;
-    final userRole = context.read<AccountDataController>().userRole;
+    final userID = context.read<AccountDataController>().currentRegistrar!.id;
 
     if (kDebugMode) {
       print('userID: $userID');
-      print('userRole: $userRole');
     }
     return Center(
       child: Column(
@@ -55,11 +53,7 @@ class SettingsMenu extends StatelessWidget {
                 Navigator.of(context).pop();
                 context.read<AccountDataController>().setLoggedIn(false);
                 context.read<SideMenuIndexController>().setSelectedIndex(0);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SignIn()),
-                  (Route<dynamic> route) => false,
-                );
+                GoRouter.of(context).go('/');
               },
               child: const Text('Logout'),
             ),

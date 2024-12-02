@@ -13,6 +13,7 @@ class CustomBtn extends StatelessWidget {
   final IconData? btnIcon;
   final FocusNode? focusNode;
   final String? imageAsset;
+  final double horizontal;
 
   const CustomBtn({
     super.key,
@@ -24,6 +25,7 @@ class CustomBtn extends StatelessWidget {
     this.btnTxt,
     this.btnFontWeight = FontWeight.normal,
     required this.txtSize,
+    this.horizontal = 0,
     this.btnIcon,
     this.focusNode,
     this.textStyle,
@@ -46,7 +48,7 @@ class CustomBtn extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(15.0),
         child: Ink(
-          padding: EdgeInsets.symmetric(vertical: vertical),
+          padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15.0),
             color: colorBg,

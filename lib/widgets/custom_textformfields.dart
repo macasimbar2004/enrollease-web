@@ -15,15 +15,17 @@ class CustomTextFormField extends StatefulWidget {
   final IconData? iconDataSuffix;
   final double? leftPadding;
   final bool toShowPrefixIcon;
-  final bool? isPhoneNumber;
+  final bool isPhoneNumber;
   final String? Function(String?)? validator;
   final int? maxLength;
   final bool? toFillColor;
   final Color? fillColor;
   final bool? maxLine;
+  final bool onlyDigits;
 
   const CustomTextFormField(
       {super.key,
+      this.onlyDigits = false,
       required this.toShowIcon,
       required this.toShowPassword,
       required this.controller,
@@ -122,13 +124,10 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                         _toShow = !_toShow;
                       });
                     },
-                    icon: _toShow
-                        ? const Icon(Icons.visibility)
-                        : const Icon(Icons.visibility_off),
+                    icon: _toShow ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
                   )
                 : null,
-        contentPadding: EdgeInsets.only(
-            top: 16.0, bottom: 16, left: widget.leftPadding ?? 10),
+        contentPadding: EdgeInsets.only(top: 16.0, bottom: 16, left: widget.leftPadding ?? 10),
         hintText: widget.hintText,
         hintStyle: const TextStyle(
           fontWeight: FontWeight.w400,
@@ -142,11 +141,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           fontSize: 12.0,
         ),
       ),
-      keyboardType: widget.isPhoneNumber == true
-          ? const TextInputType.numberWithOptions()
-          : null,
-      maxLength: widget.isPhoneNumber == true ? 11 : widget.maxLength,
-      inputFormatters: widget.isPhoneNumber == true
+      keyboardType: widget.onlyDigits || widget.isPhoneNumber ? const TextInputType.numberWithOptions() : null,
+      maxLength: widget.isPhoneNumber ? 11 : widget.maxLength,
+      inputFormatters: widget.onlyDigits || widget.isPhoneNumber
           ? [FilteringTextInputFormatter.digitsOnly] // Restrict to digits only
           : null,
       validator: widget.validator,
@@ -154,16 +151,12 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   }
 }
 
-TextFormField customTextFormField2(
-    TextEditingController controller,
-    TextStyle? style,
-    int? maxLength,
-    List<TextInputFormatter>? inputFormatters,
-    InputDecoration? decoration,
+TextFormField customTextFormField2(TextEditingController controller, TextStyle? style, int? maxLength, List<TextInputFormatter>? inputFormatters, InputDecoration? decoration,
     {bool enabled = true,
     String? Function(String?)? validator,
     FocusNode? focusNode, // Add the FocusNode as an optional parameter
-    dynamic Function(String)? onChanged}) {
+    dynamic Function(String)? onChanged,
+    TextInputType? keyboardType}) {
   return TextFormField(
     controller: controller,
     style: style,
@@ -175,6 +168,7 @@ TextFormField customTextFormField2(
     validator: validator,
     focusNode: focusNode, // Assign the passed FocusNode
     onChanged: onChanged,
+    keyboardType: keyboardType,
   );
 }
 
@@ -196,4 +190,32 @@ class MyFormFieldWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+TextFormField buildTextField({
+  String? initialValue,
+  String? labelText,
+}) {
+  return TextFormField(
+      initialValue: initialValue,
+      enabled: false,
+      style: const TextStyle(
+        color: Colors.black,
+      ),
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+          fontSize: 15.0,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: Colors.white, width: 1.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: Colors.grey, width: 1.0),
+        ),
+      ));
 }

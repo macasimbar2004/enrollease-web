@@ -10,9 +10,7 @@ class RegistarsTableSource extends DataTableSource {
   @override
   DataRow? getRow(int index) {
     if (index >= data.length) return null;
-
     final rowData = data[index];
-
     return DataRow(cells: _buildDataCells(rowData));
   }
 
@@ -35,7 +33,7 @@ class RegistarsTableSource extends DataTableSource {
       // Identification
       DataCell(
         SelectableText(
-          rowData['identification'] ?? '',
+          rowData['id'] ?? '',
           style: const TextStyle(color: Colors.black, fontSize: 16),
         ),
       ),

@@ -1,9 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enrollease_web/dev.dart';
+import 'package:enrollease_web/model/fetching_registrar_model.dart';
 import 'package:enrollease_web/model/registrar_model.dart';
+import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FirebaseAuthProvider {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FetchingRegistrarModel? currentRegistrar;
 
   // Method to save user data to Firestore
   Future<void> saveUserData(RegistrarModel registrar) async {
@@ -11,17 +16,32 @@ class FirebaseAuthProvider {
       // Save user data to Firestore with the generated ID
       await _firestore
           .collection('registrars')
-          .doc(registrar.identification) // Use the generated ID here
+          .doc(registrar.id) // Use the generated ID here
           .set(registrar.toMap());
 
-      debugPrint(
-          "User data saved successfully with ID: ${registrar.identification}.");
+      debugPrint('User data saved successfully with ID: ${registrar.id}.');
     } catch (e) {
-      debugPrint("Error saving user data: $e");
+      debugPrint('Error saving user data: $e');
     }
   }
 
-  // Method to generate a new identification ID based on the current max ID
+  /// Updates the `status` field of a document in the `enrollment_forms` collection
+  /// using `regNo` as the document ID.
+  Future<String?> updateStatus(String regNo, String newStatus) async {
+    try {
+      // Access the document directly using the regNo as the document ID
+      DocumentReference docRef = _firestore.collection('enrollment_forms').doc(regNo);
+
+      // Update the `status` field
+      await docRef.update({'status': newStatus});
+      return null;
+    } catch (e) {
+      dPrint(e);
+      return e.toString();
+    }
+  }
+
+  // Method to generate a new id ID based on the current max ID
   Future<String> generateNewIdentification() async {
     try {
       // Fetch all document IDs from the 'registrars' collection
@@ -48,37 +68,144 @@ class FirebaseAuthProvider {
       // Generate the new ID
       return '$yearPrefix$newIncrement';
     } catch (e) {
-      debugPrint("Error generating new identification ID: $e");
+      debugPrint('Error generating new id ID: $e');
       return 'SDA${DateTime.now().year % 100}-000000'; // Fallback to first ID if error occurs
     }
   }
 
-  // Method to sign in using identification and password
-  Future<bool> signIn(String identification, String password) async {
+  // Method to sign in using id and password
+  Future<bool> signIn(BuildContext context, String id, String password) async {
     try {
-      // Fetch the document with the specified identification
-      final docSnapshot =
-          await _firestore.collection('registrars').doc(identification).get();
+      // Start loading
+      Provider.of<AccountDataController>(context, listen: false).setLoading(true);
 
-      // Check if document exists and if the password matches
+      // Get user data from Firestore using id
+      final docSnapshot = await _firestore.collection('registrars').doc(id).get();
+
       if (docSnapshot.exists) {
         final data = docSnapshot.data();
         final storedPassword = data?['password'];
 
         if (storedPassword == password) {
-          debugPrint("Sign-in successful for ID: $identification");
-          return true; // Sign-in successful
+          debugPrint('Sign-in successful for ID: $id');
+
+          // Create FetchingRegistrarModel from Firestore data
+          final registrar = FetchingRegistrarModel(
+            id: data?['id'] ?? '',
+            lastName: data?['lastName'] ?? '',
+            firstName: data?['firstName'] ?? '',
+            middleName: data?['middleName'] ?? '',
+            dateOfBirth: data?['dateOfBirth'] ?? '',
+            age: data?['age'] ?? '',
+            contact: data?['contact'] ?? '',
+            placeOfBirth: data?['placeOfBirth'] ?? '',
+            address: data?['address'] ?? '',
+            email: data?['email'] ?? '',
+            remarks: data?['remarks'] ?? '',
+            nameExtension: data?['nameExtension'] ?? '', // Nullable
+            password: data?['password'] ?? '',
+            jobLevel: data?['jobLevel'] ?? '',
+          );
+
+          // Set registrar data in AccountDataController
+          if (context.mounted) {
+            await Provider.of<AccountDataController>(context, listen: false).setRegistrarData(registrar: registrar);
+          }
+
+          // Optionally, notify that sign-in was successful
+          debugPrint('User data successfully set in AccountDataController.');
+
+          return true;
         } else {
-          debugPrint("Incorrect password for ID: $identification");
-          return false; // Incorrect password
+          debugPrint('Incorrect password for ID: $id');
+          return false;
         }
       } else {
-        debugPrint("Identification not found: $identification");
-        return false; // Identification not found
+        debugPrint('ID not found: $id');
+        return false;
       }
     } catch (e) {
-      debugPrint("Error during sign-in: $e");
-      return false; // Sign-in error
+      debugPrint('Error during sign-in: $e');
+      return false;
+    } finally {
+      // Stop loading after the process is complete
+      if (context.mounted) {
+        Provider.of<AccountDataController>(context, listen: false).setLoading(false);
+      }
+    }
+  }
+
+  Future<bool> updateRegistrarField({
+    required String documentId,
+    required Map<String, dynamic> updatedFields,
+  }) async {
+    try {
+      // Reference the specific document in the 'registrars' collection
+      final documentRef = FirebaseFirestore.instance.collection('registrars').doc(documentId);
+
+      // Update the specified fields
+      await documentRef.update(updatedFields);
+
+      debugPrint('Fields updated successfully for registrar: $documentId');
+      return true;
+    } catch (e) {
+      debugPrint('Error updating registrar fields: $e');
+      return false;
+    }
+  }
+
+  // Method to fetch the total number of users in the 'users' collection
+  Stream<int> getTotalUsersStream() {
+    try {
+      return _firestore
+          .collection('users')
+          .snapshots() // Listen to changes in the 'users' collection
+          .map((querySnapshot) => querySnapshot.size); // Map to the count of documents
+    } catch (e) {
+      debugPrint('Error fetching total users: $e');
+      return Stream.value(0); // Return 0 in case of an error
+    }
+  }
+
+  // Stream to fetch the total number of 'pending' enrollment forms
+  Stream<int> getEnrollmentFormsStream() {
+    try {
+      return _firestore
+          .collection('enrollment_forms')
+          .where('status', isEqualTo: 'pending') // Filter documents where status is 'pending'
+          .snapshots() // Listen to changes in the filtered 'enrollment_forms' collection
+          .map((querySnapshot) => querySnapshot.size); // Map to the count of documents
+    } catch (e) {
+      debugPrint('Error fetching enrollment forms: $e');
+      return Stream.value(0); // Return 0 in case of an error
+    }
+  }
+
+  //add notifications
+  Future<void> addNotification({
+    required String content, // Notification content
+    required String type, // "user" or "global"
+    required String uid, // User ID for "user" notifications, '' for "global"
+  }) async {
+    try {
+      // Reference to the Firestore notifications collection
+      final notificationsCollection = FirebaseFirestore.instance.collection('notifications');
+
+      // Create the notification data
+      final notificationData = {
+        'content': content,
+        'timestamp': FieldValue.serverTimestamp(),
+        'type': type,
+        'uid': type == 'user' ? uid : '', // Only set uid for user-specific notifications
+        'isRead': false, // Default to false
+      };
+
+      // Add the notification document
+      await notificationsCollection.add(notificationData);
+
+      debugPrint('Notification added successfully!');
+    } catch (e) {
+      debugPrint('Error adding notification: $e');
     }
   }
 }

@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enrollease_web/model/registrar_model.dart';
+import 'package:enrollease_web/widgets/custom_confirmation_dialog.dart';
+import 'package:enrollease_web/widgets/registrar_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -10,9 +13,7 @@ void registrarsStreamDataSource(
 ) {
   if (streamController.isClosed) return;
 
-  final collectionRef = FirebaseFirestore.instance
-      .collection('registrars')
-      .orderBy('identification', descending: false);
+  final collectionRef = FirebaseFirestore.instance.collection('registrars').orderBy('id');
 
   collectionRef.snapshots().listen(
     (snapshot) {
@@ -23,42 +24,58 @@ void registrarsStreamDataSource(
         final docData = doc.data();
 
         return {
-          "identification": docData['identification'],
-          "fullname":
-              '${docData['firstName']} ${docData['middleName']} ${docData['lastName']}',
-          "contact": docData['contact'],
-          "actions": Row(
+          'id': docData['id'],
+          'fullname': '${docData['firstName']} ${docData['middleName']} ${docData['lastName']}',
+          'contact': docData['contact'],
+          'actions': Row(
             children: [
               ElevatedButton(
                 onPressed: () {
-                  // Action handling can be implemented here
+                  showDialog(
+                      context: context,
+                      builder: (context) => RegistrarDialog(
+                            editMode: true,
+                            id: '',
+                            registrar: RegistrarModel(
+                              id: docData['id'],
+                              lastName: docData['lastName'],
+                              firstName: docData['firstName'],
+                              middleName: docData['middleName'],
+                              dateOfBirth: docData['dateOfBirth'],
+                              age: docData['age'],
+                              contact: docData['contact'],
+                              placeOfBirth: docData['placeOfBirth'],
+                              address: docData['address'],
+                              email: docData['email'],
+                              remarks: docData['remarks'],
+                              password: docData['password'],
+                            ),
+                          ));
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child:
-                    const Text('Edit', style: TextStyle(color: Colors.white)),
+                child: const Text('Edit', style: TextStyle(color: Colors.white)),
               ),
+              const SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () {
-                  // Action handling can be implemented here
+                onPressed: () async {
+                  final confirmation = await showConfirmationDialog(context: context, title: 'Delete confirmation', message: 'Delete this registrar?', confirmText: 'Yes', cancelText: 'No');
+                  if (confirmation != null && confirmation) {
+                    await FirebaseFirestore.instance.collection('registrars').doc(docData['id']).delete();
+                  }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child:
-                    const Text('Delete', style: TextStyle(color: Colors.white)),
+                child: const Text('Remove', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
         };
       }).where((item) {
         // Filter based on search query
-        final identification = item['identification'] ?? '';
+        final id = item['id'] ?? '';
         final fullname = item['fullname'] ?? '';
         final contact = item['contact'] ?? '';
 
-        return identification
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ||
-            fullname.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            contact.toLowerCase().contains(searchQuery.toLowerCase());
+        return id.trim().toLowerCase().contains(searchQuery.trim().toLowerCase()) || fullname.trim().toLowerCase().contains(searchQuery.trim().toLowerCase()) || contact.trim().toLowerCase().contains(searchQuery.trim().toLowerCase());
       }).toList();
 
       streamController.add(data);

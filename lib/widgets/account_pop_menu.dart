@@ -20,6 +20,7 @@ class _AccountPopMenuState extends State<AccountPopMenu> {
                 bodyBuilder: (context) => const SettingsMenu(),
                 width: 200,
                 height: 101,
+                barrierColor: Colors.transparent,
               ),
           child: const Icon(
             Icons.arrow_drop_down,
