@@ -1,4 +1,3 @@
-
 import 'package:enrollease_web/paginated_table/table/balance_acc_forms_table.dart';
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/widgets/custom_header.dart';
@@ -83,9 +82,15 @@ class _StatementOfAccountState extends State<StatementOfAccount> {
                 ),
               ],
             ),
+            const SizedBox(
+              height: 10,
+            ),
             Expanded(
               child: SingleChildScrollView(
-                child: BalanceAccountsTable(range: selectedDate),
+                child: BalanceAccountsTable(
+                  range: selectedDate,
+                  userId: widget.userId!,
+                ),
               ),
             )
           ],

@@ -1,4 +1,5 @@
 import 'package:enrollease_web/account_screen/account_settings_dashboard.dart';
+import 'package:enrollease_web/pages/payments.dart';
 import 'package:enrollease_web/pages/statement_of_account.dart';
 import 'package:enrollease_web/pages/dashboard.dart';
 import 'package:enrollease_web/pages/enrollments.dart';
@@ -54,6 +55,11 @@ class ScreenSelectorController extends StatelessWidget {
               userId: userId,
             );
             break;
+          case 6:
+            selectedWidget = const PaymentsPage(
+              userId: '',
+              data: {},
+            );
           default:
             selectedWidget = Container(
               color: Colors.red,

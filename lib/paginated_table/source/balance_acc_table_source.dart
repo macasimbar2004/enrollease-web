@@ -1,6 +1,11 @@
+import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/enrollment_form_model.dart';
+import 'package:enrollease_web/model/fees_model.dart';
+import 'package:enrollease_web/model/grade_enum.dart';
 import 'package:enrollease_web/model/user_model.dart';
+import 'package:enrollease_web/pages/payments.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
+import 'package:enrollease_web/utils/nav.dart';
 import 'package:enrollease_web/widgets/custom_add_dialog.dart';
 import 'package:enrollease_web/widgets/custom_confirmation_dialog.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
@@ -13,8 +18,14 @@ class BalanceAccTableSource extends DataTableSource {
   final BuildContext context;
   final List<Map<String, dynamic>> data;
   final bool fromPendingPage;
+  final String userId;
   FirebaseAuthProvider firebaseAuthProvider = FirebaseAuthProvider();
-  BalanceAccTableSource(this.context, this.data, this.fromPendingPage);
+  BalanceAccTableSource(
+    this.context,
+    this.data,
+    this.fromPendingPage,
+    this.userId,
+  );
 
   @override
   DataRow? getRow(int index) {
@@ -43,20 +54,34 @@ class BalanceAccTableSource extends DataTableSource {
     // ];
 
     return fields.map((field) {
-      String cellValue = rowData[field] == 'parent'
-          ? (rowData[field] as UserModel).userName
-          : rowData[field] == 'pupil'
-              ? (rowData[field] as EnrollmentFormModel).firstName
-              : rowData[field].toString();
+      String cellValue = '';
+      switch (field) {
+        case 'parent':
+          cellValue = (rowData[field] as UserModel).userName;
+          break;
+        case 'pupil':
+          cellValue = (rowData[field] as EnrollmentFormModel).firstName;
+          break;
+        case 'remainingBalance':
+          cellValue = FeesModel.fromMap(rowData[field]).totalFormatted();
+          break;
+        case 'enrollingGrade':
+          cellValue = (rowData['pupil'] as EnrollmentFormModel).enrollingGrade.formalLongString();
+          break;
+        default:
+          cellValue = rowData[field].toString();
+      }
 
       if (field == 'action') {
-        return DataCell(
-          ElevatedButton(
-            onPressed: () async => await viewPendingApprovalForm(rowData), // Action handling can be implemented here
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text('View data', style: TextStyle(color: Colors.white)),
-          ),
-        );
+        return DataCell(Column(
+          children: [
+            ElevatedButton(
+              onPressed: () => Nav.push(context, PaymentsPage(userId: userId, data: rowData)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: const Text('View payments', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ));
       }
 
       return DataCell(
@@ -269,10 +294,10 @@ class BalanceAccTableSource extends DataTableSource {
           DelightfulToast.showSuccess(context, 'Success', 'Enrollment form ${leftButtonText}d.');
         }
       } else {
-        debugPrint('Approval canceled by user.');
+        dPrint('Approval canceled by user.');
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      dPrint('Error: $e');
     }
   }
 

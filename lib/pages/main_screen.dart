@@ -24,7 +24,7 @@ class MainScreen extends StatelessWidget {
     // final currentId =
     //     accountProvider.currentRegistrar?.identification ?? 'Unknown';
 
-    // debugPrint('current id: $currentId');
+    // dPrint('current id: $currentId');
 
     return Scaffold(
       key: context.read<SideMenuDrawerController>().scaffoldKey,

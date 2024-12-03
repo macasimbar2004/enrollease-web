@@ -1,3 +1,4 @@
+import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/fetching_registrar_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,7 +118,7 @@ class AccountDataController extends ChangeNotifier {
         jobLevel: currentData['userRole'] ?? _currentRegistrar!.jobLevel,
       );
 
-      debugPrint('Updated data: ${_currentRegistrar!.toMap()}');
+      dPrint('Updated data: ${_currentRegistrar!.toMap()}');
       notifyListeners(); // Notify listeners to refresh UI
     }
   }

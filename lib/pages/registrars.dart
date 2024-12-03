@@ -74,7 +74,7 @@ class _RegistrarsState extends State<Registrars> {
           ],
         ),
       )),
-      bottomNavigationBar: isSmallOrMediumScreen ? bottomCredits() : const SizedBox.shrink(),
+      bottomNavigationBar: isSmallOrMediumScreen ? bottomCredits(context) : const SizedBox.shrink(),
     );
   }
 }

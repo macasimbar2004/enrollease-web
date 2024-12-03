@@ -1,3 +1,4 @@
+import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/registrar_model.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/utils/logos.dart';
@@ -471,7 +472,7 @@ class _RegistrarDialogState extends State<RegistrarDialog> {
           password: idNumberController.text.trim(),
         );
         await firebaseAuthProvider.saveUserData(registrar);
-        // debugPrint('Fetched data: ${registrar.toMap()}');
+        // dPrint('Fetched data: ${registrar.toMap()}');
         if (mounted) {
           Navigator.pop(context);
           Navigator.pop(context);
@@ -494,7 +495,7 @@ class _RegistrarDialogState extends State<RegistrarDialog> {
           });
         }
       } catch (e) {
-        debugPrint('Form errors: ${e.toString()}');
+        dPrint('Form errors: ${e.toString()}');
         if (mounted) {
           Navigator.pop(context);
           DelightfulToast.showError(context, 'Error', 'Form errors: ${e.toString()}');

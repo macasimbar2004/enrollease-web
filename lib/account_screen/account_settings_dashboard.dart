@@ -1,3 +1,4 @@
+import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/utils/app_size.dart';
@@ -99,7 +100,7 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
         DelightfulToast.showSuccess(context, 'Success', 'Update Success.');
       }
     } catch (e) {
-      debugPrint('error $e');
+      dPrint('error $e');
       if (context.mounted) {
         Navigator.pop(context);
         setState(() {
@@ -604,8 +605,8 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
               if (value == null || value.isEmpty) {
                 return 'Current password is required.';
               } else {
-                debugPrint('Value entered: ${value.trim()}');
-                debugPrint('Current password: ${currentPassword?.trim()}');
+                dPrint('Value entered: ${value.trim()}');
+                dPrint('Current password: ${currentPassword?.trim()}');
                 if (value.trim() != currentPassword!.trim()) {
                   return 'Current password does not match!';
                 }
@@ -774,7 +775,7 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
                                 });
                               }
 
-                              debugPrint('Failed to change password: $e');
+                              dPrint('Failed to change password: $e');
                             }
                           }
                         },

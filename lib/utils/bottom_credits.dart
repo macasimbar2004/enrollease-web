@@ -1,8 +1,9 @@
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/utils/text_styles.dart';
+import 'package:enrollease_web/widgets/terms_and_conditions_widget.dart';
 import 'package:flutter/material.dart';
 
-Widget bottomCredits() {
+Widget bottomCredits(BuildContext context) {
   return Container(
     height: 50,
     color: CustomColors.contentColor,
@@ -37,10 +38,10 @@ Widget bottomCredits() {
             const SizedBox(width: 20),
             InkWell(
               onTap: () {
-                // Add terms of service navigation
+                showDialog(context: context, builder: (context) => const TermsAndConditionsWidget());
               },
               child: Text(
-                'Terms of Service  ',
+                'Terms & Conditions  ',
                 style: CustomTextStyles.lusitanaFont(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

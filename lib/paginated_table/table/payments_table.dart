@@ -1,50 +1,38 @@
 import 'dart:async';
 
-import 'package:enrollease_web/dev.dart';
-import 'package:enrollease_web/paginated_table/data_source_stream/balance_acc_source_stream.dart';
-import 'package:enrollease_web/paginated_table/source/balance_acc_table_source.dart';
+import 'package:enrollease_web/paginated_table/data_source_stream/payments_source_stream.dart';
+import 'package:enrollease_web/paginated_table/source/payments_table_source.dart';
+import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class BalanceAccountsTable extends StatefulWidget {
-  final DateTimeRange range;
+class PaymentsTable extends StatefulWidget {
   final String userId;
-  const BalanceAccountsTable({required this.range, required this.userId, super.key});
+  const PaymentsTable({required this.userId, super.key});
 
   @override
-  State<BalanceAccountsTable> createState() => _BalanceAccountsTableState();
+  State<PaymentsTable> createState() => _PaymentsTableState();
 }
 
-class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
+class _PaymentsTableState extends State<PaymentsTable> {
   late ScrollController _horizontalScrollController;
   late StreamController<List<Map<String, dynamic>>> streamController;
   String _searchQuery = '';
-  bool loading = false;
 
   @override
   void initState() {
     super.initState();
     streamController = StreamController<List<Map<String, dynamic>>>.broadcast();
     _horizontalScrollController = ScrollController();
-    balanceAccStreamSource(
-      context,
-      streamController,
-      _searchQuery,
-      widget.range,
-    );
+    paymentsStreamDataSource(context, streamController, _searchQuery);
   }
 
   void _onSearchChanged(String query) {
     if (mounted) {
       setState(() {
         _searchQuery = query;
-        balanceAccStreamSource(
-          context,
-          streamController,
-          _searchQuery,
-          widget.range,
-        );
+        paymentsStreamDataSource(context, streamController, _searchQuery);
       });
     }
   }
@@ -61,18 +49,14 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
     return buildPaginatedTable();
   }
 
-  void toggleLoading(bool newState) => setState(() {
-        loading = newState;
-      });
-
   Widget buildPaginatedTable() {
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: streamController.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || snapshot.data == null && !snapshot.hasError) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: SpinKitFadingCircle(
-              color: Colors.white,
+              color: CustomColors.contentColor,
               size: 100.0,
             ),
           );
@@ -81,7 +65,7 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
         } else {
           final data = snapshot.data ?? [];
 
-          dPrint('fetched data: $data');
+          //dPrint('fetched data: $data');
 
           return LayoutBuilder(
             builder: (context, constraints) => Scrollbar(
@@ -104,11 +88,11 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
                       header: SearchTextformfields(
                         onSearch: _onSearchChanged,
                       ),
-                      source: BalanceAccTableSource(context, data, loading, widget.userId),
+                      source: PaymentsTableSource(context, data, widget.userId),
                       showFirstLastButtons: true,
                       rowsPerPage: 5,
                       dataRowMinHeight: 40,
-                      dataRowMaxHeight: 75,
+                      dataRowMaxHeight: 86,
                       columns: _buildDataColumns(), // Use helper function to build columns
                     ),
                   ),
@@ -124,12 +108,10 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
   // Helper function to build data columns
   List<DataColumn> _buildDataColumns() {
     const columnLabels = [
-      'Grade Level #',
-      'Parent Name',
-      'Pupil Name',
-      'Grade Level',
-      'Pending balance',
-      'Action',
+      'OR',
+      'Date',
+      'Amount',
+      'Actions',
     ]; // Column labels
 
     // Map column labels to DataColumn widgets with common styles
@@ -143,11 +125,3 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
     }).toList();
   }
 }
-
-
-// const Center(
-//               child: SpinKitFadingCircle(
-//                 color: Colors.blue,
-//                 size: 34.0,
-//               ),
-//             )

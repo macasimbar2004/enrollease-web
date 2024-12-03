@@ -26,10 +26,8 @@ class _SignInState extends State<SignIn> {
   final passwordTextController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   FirebaseAuthProvider authProvider = FirebaseAuthProvider();
-
   bool toShow = true;
   bool isLoading = false;
-
   String providerJobLevel = '';
 
   Future<void> handleSignIn(BuildContext context) async {
@@ -37,20 +35,14 @@ class _SignInState extends State<SignIn> {
       setState(() {
         isLoading = true;
       });
-
       showLoadingDialog(context, 'Signing in...');
-
       final identification = userTextController.text.trim();
       final password = passwordTextController.text.trim();
-
       bool signInSuccessful = await authProvider.signIn(context, identification, password);
-
       await Future.delayed(const Duration(milliseconds: 300));
-
       setState(() {
         isLoading = false;
       });
-
       if (signInSuccessful) {
         // If sign-in is successful, set the registrar in the provider
         if (context.mounted) {
@@ -86,9 +78,9 @@ class _SignInState extends State<SignIn> {
 
   @override
   void dispose() {
+    super.dispose();
     userTextController.dispose();
     passwordTextController.dispose();
-    super.dispose();
   }
 
   @override

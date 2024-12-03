@@ -24,7 +24,7 @@ class NotifcationsTableSource extends DataTableSource {
   }
 
   List<DataCell> _buildDataCells(Map<String, dynamic> rowData) {
-    debugPrint(rowData.toString());
+    // dPrint(rowData.toString());
     final fields = [
       'title',
       'content',

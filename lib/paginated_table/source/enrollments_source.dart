@@ -412,7 +412,10 @@ class EnrollmentsTableSource extends DataTableSource {
             if (!context.mounted) return;
             DelightfulToast.showError(context, 'Error', 'Failed to generate balance account ID. Try again.');
           }
-          // add oldAcc with current fees, minus discounts (discounts apply to the total fee)
+
+          /// oldBalanceAcc + currentFees -  discounts
+          /// NOTE: discounts apply to the total fee, not per payment
+          /// unpaidBill from enrollment form is not consider, because it should be auto detected by system from previous balance
           final balance = FeesModel(
             tuition: (fees.tuition - (discountsToApply?[Discount.tuition] ?? 0)) + (oldAcc?.remainingBalance.tuition ?? 0),
             books: (fees.books - (discountsToApply?[Discount.book] ?? 0)) + (oldAcc?.remainingBalance.books ?? 0),
@@ -445,10 +448,10 @@ class EnrollmentsTableSource extends DataTableSource {
           DelightfulToast.showSuccess(context, 'Success', 'Enrollment form ${status.name}.');
         }
       } else {
-        debugPrint('Approval canceled by user.');
+        dPrint('Approval canceled by user.');
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      dPrint('Error: $e');
     }
   }
 

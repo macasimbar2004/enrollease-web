@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/balance_model.dart';
+import 'package:enrollease_web/model/payment_model.dart';
 
 class BalanceManager {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -49,14 +50,14 @@ class BalanceManager {
       String lastGeneratedEnrollmentNo = '';
       final querySnapshot = await _firestore.collection('balance_accounts').get();
       if (querySnapshot.docs.isEmpty) {
-        lastGeneratedEnrollmentNo = '${yearPrefix}000000-${_getUniqueSuffix()}';
+        lastGeneratedEnrollmentNo = '$yearPrefix-${_getUniqueSuffix()}';
         return lastGeneratedEnrollmentNo;
       }
       final lastDoc = querySnapshot.docs.last.id;
 
       // Check if the last ID starts with the correct year prefix
       if (!lastDoc.startsWith(yearPrefix)) {
-        lastGeneratedEnrollmentNo = '${yearPrefix}000000-${_getUniqueSuffix()}';
+        lastGeneratedEnrollmentNo = '$yearPrefix-${_getUniqueSuffix()}';
         return lastGeneratedEnrollmentNo;
       }
 
@@ -66,7 +67,7 @@ class BalanceManager {
 
       // If the dash is not found, generate a new number
       if (dashIndex == -1) {
-        lastGeneratedEnrollmentNo = '${yearPrefix}000000-${_getUniqueSuffix()}';
+        lastGeneratedEnrollmentNo = '$yearPrefix-${_getUniqueSuffix()}';
         return lastGeneratedEnrollmentNo;
       }
 
@@ -92,5 +93,16 @@ class BalanceManager {
   String _getUniqueSuffix() {
     final timeSuffix = DateTime.now().millisecondsSinceEpoch.toString().substring(7); // Last 6 digits of milliseconds
     return timeSuffix.padLeft(6, '0'); // Ensure 6 digits
+  }
+
+  Future<String?> createPayment(Payment payment) async {
+    // if (acc.id.isEmpty) throw ('Must provide parentsUserId!');
+    try {
+      await _firestore.collection('payments').doc().set(payment.toMap());
+      return null;
+    } catch (e) {
+      dPrint(e);
+      return e.toString();
+    }
   }
 }

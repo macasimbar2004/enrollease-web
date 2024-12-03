@@ -19,9 +19,9 @@ class FirebaseAuthProvider {
           .doc(registrar.id) // Use the generated ID here
           .set(registrar.toMap());
 
-      debugPrint('User data saved successfully with ID: ${registrar.id}.');
+      dPrint('User data saved successfully with ID: ${registrar.id}.');
     } catch (e) {
-      debugPrint('Error saving user data: $e');
+      dPrint('Error saving user data: $e');
     }
   }
 
@@ -68,7 +68,7 @@ class FirebaseAuthProvider {
       // Generate the new ID
       return '$yearPrefix$newIncrement';
     } catch (e) {
-      debugPrint('Error generating new id ID: $e');
+      dPrint('Error generating new id ID: $e');
       return 'SDA${DateTime.now().year % 100}-000000'; // Fallback to first ID if error occurs
     }
   }
@@ -87,7 +87,7 @@ class FirebaseAuthProvider {
         final storedPassword = data?['password'];
 
         if (storedPassword == password) {
-          debugPrint('Sign-in successful for ID: $id');
+          dPrint('Sign-in successful for ID: $id');
 
           // Create FetchingRegistrarModel from Firestore data
           final registrar = FetchingRegistrarModel(
@@ -113,19 +113,19 @@ class FirebaseAuthProvider {
           }
 
           // Optionally, notify that sign-in was successful
-          debugPrint('User data successfully set in AccountDataController.');
+          dPrint('User data successfully set in AccountDataController.');
 
           return true;
         } else {
-          debugPrint('Incorrect password for ID: $id');
+          dPrint('Incorrect password for ID: $id');
           return false;
         }
       } else {
-        debugPrint('ID not found: $id');
+        dPrint('ID not found: $id');
         return false;
       }
     } catch (e) {
-      debugPrint('Error during sign-in: $e');
+      dPrint('Error during sign-in: $e');
       return false;
     } finally {
       // Stop loading after the process is complete
@@ -146,10 +146,10 @@ class FirebaseAuthProvider {
       // Update the specified fields
       await documentRef.update(updatedFields);
 
-      debugPrint('Fields updated successfully for registrar: $documentId');
+      dPrint('Fields updated successfully for registrar: $documentId');
       return true;
     } catch (e) {
-      debugPrint('Error updating registrar fields: $e');
+      dPrint('Error updating registrar fields: $e');
       return false;
     }
   }
@@ -162,7 +162,7 @@ class FirebaseAuthProvider {
           .snapshots() // Listen to changes in the 'users' collection
           .map((querySnapshot) => querySnapshot.size); // Map to the count of documents
     } catch (e) {
-      debugPrint('Error fetching total users: $e');
+      dPrint('Error fetching total users: $e');
       return Stream.value(0); // Return 0 in case of an error
     }
   }
@@ -176,7 +176,7 @@ class FirebaseAuthProvider {
           .snapshots() // Listen to changes in the filtered 'enrollment_forms' collection
           .map((querySnapshot) => querySnapshot.size); // Map to the count of documents
     } catch (e) {
-      debugPrint('Error fetching enrollment forms: $e');
+      dPrint('Error fetching enrollment forms: $e');
       return Stream.value(0); // Return 0 in case of an error
     }
   }
@@ -203,9 +203,9 @@ class FirebaseAuthProvider {
       // Add the notification document
       await notificationsCollection.add(notificationData);
 
-      debugPrint('Notification added successfully!');
+      dPrint('Notification added successfully!');
     } catch (e) {
-      debugPrint('Error adding notification: $e');
+      dPrint('Error adding notification: $e');
     }
   }
 }

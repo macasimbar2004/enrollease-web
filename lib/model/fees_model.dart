@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class FeesModel {
   final double entrance;
   final double tuition;
@@ -19,6 +21,10 @@ class FeesModel {
 
   double total() {
     return entrance + tuition + misc + books + watchman + aircon + others;
+  }
+
+  String totalFormatted({bool pesoSign = true}) {
+    return '${pesoSign ? 'P' : ''}${NumberFormat('#,###').format(total())}';
   }
 
   FeesModel copyWith({

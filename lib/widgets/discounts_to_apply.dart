@@ -1,6 +1,5 @@
 import 'package:enrollease_web/paginated_table/source/enrollments_source.dart';
 import 'package:enrollease_web/utils/nav.dart';
-import 'package:enrollease_web/utils/text_validator.dart';
 import 'package:enrollease_web/widgets/custom_textformfields.dart';
 import 'package:flutter/material.dart';
 
@@ -15,12 +14,12 @@ class _DiscountsToApplyDialogState extends State<DiscountsToApplyDialog> {
   final tuitionDiscountController = TextEditingController();
   final bookDiscountController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  Widget msg = SizedBox.shrink();
+  Widget msg = const SizedBox.shrink();
 
   void updateMsg(String text) => setState(() {
         msg = Text(
           text,
-          style: TextStyle(color: Colors.red),
+          style: const TextStyle(color: Colors.red),
         );
       });
 
@@ -30,7 +29,7 @@ class _DiscountsToApplyDialogState extends State<DiscountsToApplyDialog> {
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 500, maxHeight: 250),
+          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 250),
           child: Form(
             key: formKey,
             child: Column(
