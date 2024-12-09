@@ -70,28 +70,26 @@ class _PaymentsPageState extends State<PaymentsPage> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
-                child: SizedBox(
-                  width: 200,
-                  child: CustomBtn(
-                    vertical: 10,
-                    colorBg: CustomColors.color1,
-                    colorTxt: Colors.white,
-                    txtSize: 18,
-                    onTap: () async {
-                      showLoadingDialog(context, 'Loading');
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        showDialog(context: context, builder: (context) => AddPaymentDialog(Provider.of<SideMenuIndexController>(context).data));
-                      }
-                    },
-                    btnTxt: 'Add Payment',
-                    btnIcon: Icons.add,
-                    textStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+              Consumer<SideMenuIndexController>(builder: (context, sideMenu, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
+                  child: SizedBox(
+                    width: 200,
+                    child: CustomBtn(
+                      vertical: 10,
+                      colorBg: CustomColors.color1,
+                      colorTxt: Colors.white,
+                      txtSize: 18,
+                      onTap: () {
+                        showDialog(context: context, builder: (context) => AddPaymentDialog(sideMenu.data));
+                      },
+                      btnTxt: 'Add Payment',
+                      btnIcon: Icons.add,
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                    ),
                   ),
-                ),
-              )
+                );
+              })
             ],
           ),
           Expanded(
