@@ -33,91 +33,99 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
     final menuProvider = context.watch<SideMenuIndexController>();
 
     // Example notification count
-    int notificationCount = 5; // Replace this with your dynamic count
+    // int notificationCount = 5; // Replace this with your dynamic count
 
-    return DrawerHeader(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide.none,
-        ),
-        color: CustomColors.contentColor,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        dividerTheme: const DividerThemeData(color: Colors.transparent),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // if (isSmallScreen || isMediumScreen)
-          //   IconButton(
-          //     onPressed: () {
-          //       context.read<SideMenuDrawerController>().controlMenu();
-          //     },
-          //     icon: const Icon(
-          //       Icons.menu,
-          //       color: Colors.white,
-          //     ),
-          //   ),
-          Visibility(
-            visible: (isSmallScreen),
-            child: IconButton(
-              onPressed: menuProvider.isButtonDisabled
-                  ? null // Disable the button if true
-                  : () => context.read<SideMenuDrawerController>().controlMenu(),
-              icon: const Icon(
-                Icons.menu,
-                color: Colors.white,
+      child: DrawerHeader(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        margin: const EdgeInsets.all(10),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          border: Border(
+            bottom: BorderSide.none,
+          ),
+          color: CustomColors.contentColor,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // if (isSmallScreen || isMediumScreen)
+            //   IconButton(
+            //     onPressed: () {
+            //       context.read<SideMenuDrawerController>().controlMenu();
+            //     },
+            //     icon: const Icon(
+            //       Icons.menu,
+            //       color: Colors.white,
+            //     ),
+            //   ),
+            Visibility(
+              visible: (isSmallScreen),
+              child: IconButton(
+                onPressed: menuProvider.isButtonDisabled
+                    ? null // Disable the button if true
+                    : () => context.read<SideMenuDrawerController>().controlMenu(),
+                icon: const Icon(
+                  Icons.menu,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-          if (isMediumScreen || isLargeScreen)
-            Text(
-              widget.headerName.toUpperCase(),
-              style: const TextStyle(color: Colors.white, fontSize: 30),
-            ),
-          const Spacer(),
-          if (widget.isToHide == null || widget.isToHide == false) const AdminAccountSetting(),
-          if (widget.isToHide == null || widget.isToHide == false)
-            Stack(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    // Handle notification button press
-                    menuProvider.setSelectedIndex(0);
-                    menuProvider.setCurrentSelectedIndex(0);
-                  },
-                  icon: const Icon(
-                    Icons.notifications,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
-                if (notificationCount > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Center(
-                        child: Text(
-                          notificationCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-        ],
+            if (isMediumScreen || isLargeScreen)
+              Text(
+                widget.headerName.toUpperCase(),
+                style: const TextStyle(color: Colors.white, fontSize: 30),
+              ),
+            const Spacer(),
+            if (widget.isToHide == null || widget.isToHide == false) const AdminAccountSetting(),
+            // if (widget.isToHide == null || widget.isToHide == false)
+            // Stack(
+            //   children: [
+            //     IconButton(
+            //       onPressed: () {
+            //         // Handle notification button press
+            //         menuProvider.setSelectedIndex(0);
+            //         menuProvider.setCurrentSelectedIndex(0);
+            //       },
+            //       icon: const Icon(
+            //         Icons.notifications,
+            //         size: 30,
+            //         color: Colors.white,
+            //       ),
+            //     ),
+            //     if (notificationCount > 0)
+            //       Positioned(
+            //         right: 0,
+            //         top: 0,
+            //         child: Container(
+            //           padding: const EdgeInsets.all(2),
+            //           decoration: BoxDecoration(
+            //             color: Colors.red,
+            //             borderRadius: BorderRadius.circular(10),
+            //           ),
+            //           constraints: const BoxConstraints(
+            //             minWidth: 16,
+            //             minHeight: 16,
+            //           ),
+            //           child: Center(
+            //             child: Text(
+            //               notificationCount.toString(),
+            //               style: const TextStyle(
+            //                 color: Colors.white,
+            //                 fontSize: 10,
+            //                 fontWeight: FontWeight.bold,
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //   ],
+            // ),
+          ],
+        ),
       ),
     );
   }

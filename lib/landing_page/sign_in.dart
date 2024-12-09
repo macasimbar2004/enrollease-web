@@ -40,6 +40,13 @@ class _SignInState extends State<SignIn> {
       final password = passwordTextController.text.trim();
       bool signInSuccessful = await authProvider.signIn(context, identification, password);
       await Future.delayed(const Duration(milliseconds: 300));
+      if (!context.mounted) return;
+      final registrar = Provider.of<AccountDataController>(context, listen: false).currentRegistrar!;
+      await FirebaseAuthProvider().addNotification(
+          content: 'Registrar ${registrar.firstName} ${registrar.lastName} has logged in.\n'
+              'Registration Number: $identification',
+          type: 'registrar',
+          uid: '');
       setState(() {
         isLoading = false;
       });
@@ -166,7 +173,20 @@ class _SignInState extends State<SignIn> {
                           ),
                           SizedBox(
                             width: 200,
-                            child: CustomBtn(onTap: isLoading ? null : () async => await handleSignIn(context), vertical: 10, colorBg: CustomColors.contentColor, colorTxt: Colors.white, btnTxt: 'LOGIN', btnFontWeight: FontWeight.normal, textStyle: CustomTextStyles.lusitanaFont(fontSize: 16, color: Colors.white, fontWeight: FontWeight.normal), txtSize: null),
+                            child: CustomBtn(
+                              onTap: isLoading ? null : () async => await handleSignIn(context),
+                              vertical: 10,
+                              colorBg: CustomColors.contentColor,
+                              colorTxt: Colors.white,
+                              btnTxt: 'LOGIN',
+                              btnFontWeight: FontWeight.normal,
+                              textStyle: CustomTextStyles.lusitanaFont(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              txtSize: null,
+                            ),
                           ),
                           const SizedBox(
                             height: 10,

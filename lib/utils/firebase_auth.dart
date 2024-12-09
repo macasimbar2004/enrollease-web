@@ -1,10 +1,16 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enrollease_web/appwrite.dart';
 import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/fetching_registrar_model.dart';
 import 'package:enrollease_web/model/registrar_model.dart';
 import 'package:enrollease_web/states_management/account_data_controller.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/v4.dart';
 
 class FirebaseAuthProvider {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -91,6 +97,7 @@ class FirebaseAuthProvider {
 
           // Create FetchingRegistrarModel from Firestore data
           final registrar = FetchingRegistrarModel(
+            profilePicLink: data?['profilePicLink'] ?? '',
             id: data?['id'] ?? '',
             lastName: data?['lastName'] ?? '',
             firstName: data?['firstName'] ?? '',
@@ -168,11 +175,24 @@ class FirebaseAuthProvider {
   }
 
   // Stream to fetch the total number of 'pending' enrollment forms
-  Stream<int> getEnrollmentFormsStream() {
+  Stream<int> getTotalPendingEnrollments() {
     try {
       return _firestore
           .collection('enrollment_forms')
           .where('status', isEqualTo: 'pending') // Filter documents where status is 'pending'
+          .snapshots() // Listen to changes in the filtered 'enrollment_forms' collection
+          .map((querySnapshot) => querySnapshot.size); // Map to the count of documents
+    } catch (e) {
+      dPrint('Error fetching enrollment forms: $e');
+      return Stream.value(0); // Return 0 in case of an error
+    }
+  }
+
+  // Stream to fetch the total number of 'pending' enrollment forms
+  Stream<int> getTotalEnrollments() {
+    try {
+      return _firestore
+          .collection('enrollment_forms')
           .snapshots() // Listen to changes in the filtered 'enrollment_forms' collection
           .map((querySnapshot) => querySnapshot.size); // Map to the count of documents
     } catch (e) {
@@ -206,6 +226,105 @@ class FirebaseAuthProvider {
       dPrint('Notification added successfully!');
     } catch (e) {
       dPrint('Error adding notification: $e');
+    }
+  }
+
+  Future<Uint8List?> getProfilePic(BuildContext context) async {
+    String userId = context.read<AccountDataController>().currentRegistrar?.id ?? '';
+    final data = await FirebaseFirestore.instance.collection('registrars').doc(userId).get();
+    try {
+      if (!data.exists) {
+        dPrint('data doesnt exist!');
+        return null;
+      }
+      final account = FetchingRegistrarModel.fromMap(data.id, data.data()!);
+      final bytes = await storage.getFileView(
+        bucketId: bucketIDProfilePics,
+        fileId: account.profilePicLink,
+      );
+      if (bytes.isEmpty) {
+        return null;
+      }
+      return bytes;
+    } catch (e) {
+      dPrint(e.toString());
+      return null;
+    }
+  }
+
+  Future<String?> changeProfilePic(String registrarID, PlatformFile file) async {
+    if (registrarID.isEmpty) throw ('registrars was blank!');
+    final mimeType = kIsWeb ? lookupMimeType('', headerBytes: file.bytes) : lookupMimeType(file.path!);
+    // dPrint(mimeType);
+    try {
+      final data = await FirebaseFirestore.instance.collection('registrars').doc(registrarID).get();
+      if (!data.exists) {
+        dPrint('data doesnt exist!!');
+        return null;
+      }
+      final account = FetchingRegistrarModel.fromMap(data.id, data.data()!);
+      // remove previous, because appwrite doesn't allow file overwrite
+      try {
+        await storage.deleteFile(bucketId: bucketIDProfilePics, fileId: account.profilePicLink);
+      } catch (e) {
+        dPrint('deleting profilepic error: $e');
+      }
+      final newID = const UuidV4().generate();
+      final response = await storage.createFile(
+        bucketId: bucketIDProfilePics, // Replace with your bucket ID
+        fileId: newID,
+        file: InputFile.fromBytes(
+          bytes: file.bytes!,
+          filename: newID,
+          contentType: mimeType,
+        ),
+      );
+      await FirebaseFirestore.instance.collection('registrars').doc(registrarID).update(
+            account.copyWith(profilePicLink: newID).toMap(),
+          );
+      dPrint('File uploaded: ${response.$id}');
+      return null;
+    } catch (e) {
+      dPrint('Error uploading file: $e');
+      return e.toString();
+    }
+  }
+
+  Future<String?> changeEmail(String uid, String email) async {
+    try {
+      await _firestore.collection('registrars').doc(uid).update({'email': email});
+      return null;
+    } catch (e) {
+      dPrint(e);
+      return e.toString();
+    }
+  }
+
+  Future<String?> changePass(String uid, String pass) async {
+    try {
+      // await _auth.currentUser!.updatePassword(pass);
+      await _firestore.collection('registrars').doc(uid).update({'password': pass});
+      return null;
+    } catch (e) {
+      dPrint(e);
+      return e.toString();
+    }
+  }
+
+  Future<String?> changeContactNo(String uid, String contactNo) async {
+    try {
+      // TODO: do OTP later?
+      // await _auth.verifyPhoneNumber(
+      //   verificationCompleted: (cred) {},
+      //   verificationFailed: (e) {},
+      //   codeSent: (verificationID, forceSendingToken) {},
+      //   codeAutoRetrievalTimeout: (verificationID) {},
+      // );
+      await _firestore.collection('registrars').doc(uid).update({'contact': contactNo});
+      return null;
+    } catch (e) {
+      dPrint(e);
+      return e.toString();
     }
   }
 }

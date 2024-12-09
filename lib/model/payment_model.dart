@@ -4,7 +4,7 @@ class Payment {
   final String id;
   final String balanceAccID;
   final double? or;
-  final Map<FeeType, double>? amount;
+  final FeesModel? amount;
   final String? date;
 
   Payment({
@@ -16,19 +16,17 @@ class Payment {
   });
 
   factory Payment.fromMap(String id, Map<String, dynamic> data) {
-    final Map<FeeType, double> amount = {};
-    if (data['amount'] != null) {
-      for (final feeType in FeeType.values) {
-        amount.addAll({feeType: data['amount'] ?? -1});
-      }
+    FeesModel? amount;
+    if (data['amount'] != null && data['amount'] is! FeesModel) {
+      amount = FeesModel.fromMap(data['amount']);
     }
     return Payment(
       id: id,
       balanceAccID: data['balanceAccID'],
-      or: double.tryParse(data['or']),
+      or: double.tryParse(data['or'].toString()),
       // date: data['date'] == null ? null : (data['date'] as Timestamp).toDate(),
       date: data['date'],
-      amount: amount,
+      amount: amount ?? data['amount'],
     );
   }
 
@@ -38,17 +36,9 @@ class Payment {
       'balanceAccID': balanceAccID,
       'or': or,
       'date': date,
-      'amount': amount == null ? null : Map.fromIterable(amount!.entries.map((e) => {e.key.name: e.value})),
+      'amount': amount?.toMap(),
     };
   }
 
-  double total() {
-    double returnTotal = 0;
-    if (amount != null) {
-      for (final value in amount!.values) {
-        returnTotal += value;
-      }
-    }
-    return returnTotal;
-  }
+  double total() => amount?.total() ?? 0;
 }

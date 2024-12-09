@@ -1,10 +1,9 @@
-import 'dart:typed_data';
 
 import 'package:enrollease_web/account_screen/menu/settings_menu.dart';
 import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/utils/colors.dart';
-import 'package:enrollease_web/utils/logos.dart';
 import 'package:enrollease_web/widgets/account_pop_menu.dart';
+import 'package:enrollease_web/widgets/profile_pic.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
 import 'package:provider/provider.dart';
@@ -52,29 +51,29 @@ class AdminAccountSettingState extends State<AdminAccountSetting> {
               },
             ),
           ),
-          _buildProfileImage(),
+          const SizedBox(width: 60, height: 60, child: ProfilePic()),
           const AccountPopMenu(),
         ],
       ),
     );
   }
 
-  Widget _buildProfileImage({Uint8List? image}) {
-    return ClipOval(
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: image != null
-                ? MemoryImage(image) // Use Uint8List directly
-                : const AssetImage(CustomLogos.editProfileImage) as ImageProvider,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildProfileImage({Uint8List? image}) {
+  //   return ClipOval(
+  //     child: Container(
+  //       width: 60,
+  //       height: 60,
+  //       decoration: BoxDecoration(
+  //         image: DecorationImage(
+  //           image: image != null
+  //               ? MemoryImage(image) // Use Uint8List directly
+  //               : const AssetImage(CustomLogos.editProfileImage) as ImageProvider,
+  //           fit: BoxFit.cover,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _showSettingsMenu() {
     showPopover(

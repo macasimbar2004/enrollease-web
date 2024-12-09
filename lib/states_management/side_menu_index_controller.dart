@@ -6,11 +6,13 @@ class SideMenuIndexController extends ChangeNotifier {
   bool _isMenuVisible = true;
   bool _isToggling = false; // Add a new flag
   bool _isButtonDisabled = false; // New flag to disable the button
+  Map<String, dynamic> _data = {};
 
   int get selectedIndex => _selectedIndex;
   int get currentIndexSelected => _currentIndexSelected;
   bool get isMenuVisible => _isMenuVisible;
   bool get isButtonDisabled => _isButtonDisabled; // Getter for button state
+  Map<String, dynamic> get data => _data;
 
   String? _currentRoute;
   String? get currentRoute => _currentRoute;
@@ -25,9 +27,13 @@ class SideMenuIndexController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setData(Map<String, dynamic> newData) {
+    _data = Map.from(newData);
+    notifyListeners();
+  }
+
   void setCurrentSelectedIndex(int index) {
-    _currentIndexSelected =
-        index; // Update currentIndexSelected when the index is set
+    _currentIndexSelected = index; // Update currentIndexSelected when the index is set
     notifyListeners();
   }
 

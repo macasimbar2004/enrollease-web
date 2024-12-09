@@ -1,6 +1,8 @@
 import 'package:enrollease_web/paginated_table/table/enrollments_table.dart';
+import 'package:enrollease_web/utils/bottom_credits.dart';
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/widgets/custom_header.dart';
+import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:flutter/material.dart';
 
 class Enrollments extends StatefulWidget {
@@ -16,8 +18,9 @@ class _EnrollmentsState extends State<Enrollments> {
 
   @override
   Widget build(BuildContext context) {
+    final isSmallOrMediumScreen = ResponsiveWidget.isMediumScreen(context) || ResponsiveWidget.isLargeScreen(context);
     return Scaffold(
-      backgroundColor: CustomColors.contentColor,
+      backgroundColor: CustomColors.appBarColor,
       body: SafeArea(
           child: Column(
         children: [
@@ -64,9 +67,10 @@ class _EnrollmentsState extends State<Enrollments> {
               ],
             ),
           ),
-          Expanded(child: EnrollmentsTable(eStatus))
+          Expanded(child: EnrollmentsTable(eStatus)),
         ],
       )),
+      bottomNavigationBar: isSmallOrMediumScreen ? bottomCredits(context) : const SizedBox.shrink(),
     );
   }
 }

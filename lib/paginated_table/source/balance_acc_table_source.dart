@@ -3,15 +3,15 @@ import 'package:enrollease_web/model/enrollment_form_model.dart';
 import 'package:enrollease_web/model/fees_model.dart';
 import 'package:enrollease_web/model/grade_enum.dart';
 import 'package:enrollease_web/model/user_model.dart';
-import 'package:enrollease_web/pages/payments.dart';
+import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
-import 'package:enrollease_web/utils/nav.dart';
 import 'package:enrollease_web/widgets/custom_add_dialog.dart';
 import 'package:enrollease_web/widgets/custom_confirmation_dialog.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
 import 'package:enrollease_web/widgets/custom_textformfields.dart';
 import 'package:enrollease_web/widgets/custom_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // Data source for new users table
 class BalanceAccTableSource extends DataTableSource {
@@ -63,8 +63,30 @@ class BalanceAccTableSource extends DataTableSource {
           cellValue = (rowData[field] as EnrollmentFormModel).firstName;
           break;
         case 'remainingBalance':
-          cellValue = FeesModel.fromMap(rowData[field]).totalFormatted();
-          break;
+          final fees = FeesModel.fromMap(rowData[field]);
+          cellValue = fees.totalFormatted();
+          final breakdown = StringBuffer();
+          breakdown.writeln('Aircon: ${formatTotal(fees.aircon)}');
+          breakdown.writeln('Books: ${formatTotal(fees.books)}');
+          breakdown.writeln('Entrance: ${formatTotal(fees.entrance)}');
+          breakdown.writeln('Misc: ${formatTotal(fees.misc)}');
+          breakdown.writeln('Others: ${formatTotal(fees.others)}');
+          breakdown.writeln('Tuition: ${formatTotal(fees.tuition)}');
+          breakdown.writeln('Watchman: ${formatTotal(fees.watchman)}');
+          return DataCell(Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Tooltip(
+                message: breakdown.toString(),
+                child: const Icon(Icons.info, color: Colors.blueAccent),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                cellValue,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ],
+          ));
         case 'enrollingGrade':
           cellValue = (rowData['pupil'] as EnrollmentFormModel).enrollingGrade.formalLongString();
           break;
@@ -73,15 +95,16 @@ class BalanceAccTableSource extends DataTableSource {
       }
 
       if (field == 'action') {
-        return DataCell(Column(
-          children: [
-            ElevatedButton(
-              onPressed: () => Nav.push(context, PaymentsPage(userId: userId, data: rowData)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-              child: const Text('View payments', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ));
+        return DataCell(
+          ElevatedButton(
+            onPressed: () {
+              context.read<SideMenuIndexController>().setData(rowData);
+              context.read<SideMenuIndexController>().setSelectedIndex(6);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            child: const Text('View payments', style: TextStyle(color: Colors.white)),
+          ),
+        );
       }
 
       return DataCell(

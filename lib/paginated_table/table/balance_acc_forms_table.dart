@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/paginated_table/data_source_stream/balance_acc_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/balance_acc_table_source.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
@@ -33,6 +32,21 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
       _searchQuery,
       widget.range,
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant BalanceAccountsTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.range != widget.range) {
+      setState(() {
+        balanceAccStreamSource(
+          context,
+          streamController,
+          _searchQuery,
+          widget.range,
+        );
+      });
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -81,7 +95,7 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
         } else {
           final data = snapshot.data ?? [];
 
-          dPrint('fetched data: $data');
+          // dPrint('fetched data: $data');
 
           return LayoutBuilder(
             builder: (context, constraints) => Scrollbar(

@@ -9,24 +9,15 @@ class StatisticsModelDataController extends ChangeNotifier {
   final FirebaseAuthProvider _firebaseAuthProvider = FirebaseAuthProvider();
 
   // Stream controller for the statistics data
-  final StreamController<List<StatisticsModel>> _statsStreamController =
-      StreamController<List<StatisticsModel>>.broadcast();
+  final StreamController<List<StatisticsModel>> _statsStreamController = StreamController<List<StatisticsModel>>.broadcast();
 
   List<StatisticsModel> data = const [
-    StatisticsModel(
-        imageAssets: CustomLogos.newUsers, title: 'Total Users', count: '0'),
-    StatisticsModel(
-        imageAssets: CustomLogos.pendingapproval,
-        title: 'Pending Approvals',
-        count: '0'),
-    StatisticsModel(
-        imageAssets: CustomLogos.totalEnrollment,
-        title: 'Total Enrolled',
-        count: '250'),
+    StatisticsModel(imageAssets: CustomLogos.newUsers, title: 'Total Users', count: '--'),
+    StatisticsModel(imageAssets: CustomLogos.pendingapproval, title: 'Pending Approvals', count: '--'),
+    StatisticsModel(imageAssets: CustomLogos.totalEnrollment, title: 'Total Enrolled', count: '--'),
   ];
 
-  Stream<List<StatisticsModel>> get statsStream =>
-      _statsStreamController.stream;
+  Stream<List<StatisticsModel>> get statsStream => _statsStreamController.stream;
 
   StatisticsModelDataController() {
     _initializeStream();
@@ -39,8 +30,13 @@ class StatisticsModelDataController extends ChangeNotifier {
     });
 
     // Subscribe to the real-time stream of total enrollment forms count
-    _firebaseAuthProvider.getEnrollmentFormsStream().listen((enrollmentForms) {
+    _firebaseAuthProvider.getTotalPendingEnrollments().listen((enrollmentForms) {
       _updateStatistics('Pending Approvals', enrollmentForms.toString());
+    });
+
+    // Subscribe to the real-time stream of total enrollment forms count
+    _firebaseAuthProvider.getTotalEnrollments().listen((enrollmentForms) {
+      _updateStatistics('Total Enrolled', enrollmentForms.toString());
     });
   }
 

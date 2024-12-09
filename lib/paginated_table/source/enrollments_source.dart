@@ -122,7 +122,7 @@ class EnrollmentsTableSource extends DataTableSource {
       String cellValue = rowData[field]?.toString() ?? '';
       return DataCell(
         SelectableText(
-          cellValue,
+          '${cellValue[0].toUpperCase()}${cellValue.substring(1)}',
           style: const TextStyle(color: Colors.black, fontSize: 18),
         ),
       );
@@ -188,7 +188,7 @@ class EnrollmentsTableSource extends DataTableSource {
                 _buildText('Mother Tongue', rowData.motherTongue),
                 _buildText('Civil Status', rowData.civilStatus.formalName()),
                 _buildText('IP/ICC', rowData.ipOrIcc != null && rowData.ipOrIcc == true ? 'Yes' : 'No'),
-                if (rowData.sdaBaptismDate != null) _buildText('SDA baptism on:', rowData.sdaBaptismDate ?? '--'),
+                if (rowData.sdaBaptismDate != null) _buildText('SDA baptism on', rowData.sdaBaptismDate ?? '--'),
                 const SizedBox(height: 10),
                 const Divider(color: Colors.black, endIndent: 20),
                 const SizedBox(height: 10),

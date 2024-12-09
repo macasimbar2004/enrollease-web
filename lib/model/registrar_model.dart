@@ -13,10 +13,12 @@ class RegistrarModel {
   final String? nameExtension;
   final String password;
   final String? jobLevel;
+  final String? profilePicLink;
 
   RegistrarModel({
     required this.id,
     required this.lastName,
+    required this.profilePicLink,
     required this.firstName,
     required this.middleName,
     required this.dateOfBirth,
@@ -35,6 +37,7 @@ class RegistrarModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'profilePicLink': profilePicLink,
       'lastName': lastName,
       'firstName': firstName,
       'middleName': middleName,

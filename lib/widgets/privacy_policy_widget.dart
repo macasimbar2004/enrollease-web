@@ -1,11 +1,11 @@
-import 'package:enrollease_web/terms_and_conditions.dart';
+import 'package:enrollease_web/privacy_policy.dart';
 import 'package:enrollease_web/utils/nav.dart';
 import 'package:enrollease_web/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-class TermsAndConditionsWidget extends StatelessWidget {
-  const TermsAndConditionsWidget({super.key});
+class PrivacyPolicyWidget extends StatelessWidget {
+  const PrivacyPolicyWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class TermsAndConditionsWidget extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: Markdown(data: termsAndConditions),
+              child: Markdown(data: privacyPolicy),
             ),
           ),
           const SizedBox(height: 20),

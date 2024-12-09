@@ -86,7 +86,7 @@ class _PupilsTableState extends State<NotificationsTable> {
                     child: data.isEmpty
                         ? const Center(
                             child: Text(
-                              'No notifications found.',
+                              'No logs found.',
                               style: TextStyle(color: Colors.white, fontSize: 18),
                             ),
                           )
@@ -114,7 +114,7 @@ class _PupilsTableState extends State<NotificationsTable> {
   // Helper function to build data columns
   List<DataColumn> _buildDataColumns() {
     const columnLabels = [
-      'Title',
+      // 'Title',
       'Message',
       'Date',
       // 'Action',

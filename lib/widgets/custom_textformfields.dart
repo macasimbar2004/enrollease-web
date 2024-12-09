@@ -22,6 +22,7 @@ class CustomTextFormField extends StatefulWidget {
   final Color? fillColor;
   final bool? maxLine;
   final bool onlyDigits;
+  final String? helperText;
 
   const CustomTextFormField(
       {super.key,
@@ -31,6 +32,7 @@ class CustomTextFormField extends StatefulWidget {
       required this.controller,
       this.ageController, // Initialize age controller
       this.focusNode,
+      this.helperText,
       this.hintText,
       this.iconData,
       this.toShowLabelText,
@@ -97,6 +99,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       focusNode: widget.focusNode,
       readOnly: widget.isDateTime == true,
       decoration: InputDecoration(
+        helperText: widget.helperText,
         filled: widget.toFillColor,
         fillColor: widget.fillColor,
         border: OutlineInputBorder(

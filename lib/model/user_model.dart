@@ -1,3 +1,5 @@
+import 'package:enrollease_web/dev.dart';
+
 class UserModel {
   final String userName;
   final String email;
@@ -19,8 +21,32 @@ class UserModel {
     required this.isActive,
   });
 
+  UserModel copyWith({
+    final String? userName,
+    final String? email,
+    final String? contactNumber,
+    final String? uid,
+    // final Gender? gender,
+    final String? role,
+    final String? profilePicLink,
+    final bool? isActive,
+  }) {
+    return UserModel(
+      profilePicLink: profilePicLink ?? this.profilePicLink,
+      userName: userName ?? this.userName,
+      email: email ?? this.email,
+      contactNumber: contactNumber ?? this.contactNumber,
+      uid: uid ?? this.uid,
+      role: role ?? this.role,
+      isActive: isActive ?? this.isActive,
+    );
+  }
+
   // A method to convert data from a map (useful for Firestore)
   factory UserModel.fromMap(Map<String, dynamic> data) {
+    if (data.isEmpty) {
+      dPrint('Data is empty!');
+    }
     // Gender? gender;
     // switch (data['gender']) {
     //   case 'male':
@@ -31,7 +57,7 @@ class UserModel {
     //     break;
     // }
     return UserModel(
-      profilePicLink: data['profilePic'] ?? '',
+      profilePicLink: data['profilePicLink'] ?? '',
       userName: data['userName'] ?? '',
       // gender: gender,
       role: data['role'] ?? '',

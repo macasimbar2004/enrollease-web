@@ -5,30 +5,32 @@ import 'package:enrollease_web/utils/app_size.dart';
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/utils/logos.dart';
+import 'package:enrollease_web/utils/nav.dart';
 import 'package:enrollease_web/widgets/custom_header.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
 import 'package:enrollease_web/widgets/custom_toast.dart';
+import 'package:enrollease_web/widgets/profile_pic.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:enrollease_web/utils/text_validator.dart';
 import 'package:enrollease_web/widgets/custom_button.dart';
 import 'package:enrollease_web/widgets/custom_textformfields.dart';
-import 'package:enrollease_web/widgets/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
-class AccountSettingsDashboard extends StatefulWidget {
-  final String? userId;
+class ProfilePage extends StatefulWidget {
+  final String userId;
 
-  const AccountSettingsDashboard({super.key, this.userId});
+  const ProfilePage({super.key, required this.userId});
 
   @override
-  State<AccountSettingsDashboard> createState() => _AccountSettingsDashboardState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
+class _ProfilePageState extends State<ProfilePage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _passwordFormKey = GlobalKey<FormState>();
   final TextEditingController firstNameController = TextEditingController();
@@ -41,7 +43,7 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  final ImageService _imageService = ImageService();
+  // final ImageService _imageService = ImageService();
   FirebaseAuthProvider authProvider = FirebaseAuthProvider();
 
   String? firstName;
@@ -58,19 +60,47 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
   Uint8List? _image;
   bool changePass = false;
   bool changePassTapped = false;
-  bool isLoading = true;
+  bool isLoading = false;
   bool isImageChanged = false;
   Map<String, dynamic> data = {};
+  late int currentIndex;
 
   bool toSave = false;
   bool toSaveFirstName = false;
+  bool toSaveMiddleName = false;
+  bool toSaveLastName = false;
+  bool toSaveContact = false;
+  bool toSaveEmail = false;
   bool toSavePassword = false;
 
   @override
   void initState() {
     super.initState();
     setData(context);
+    currentPassword = context.read<AccountDataController>().currentRegistrar?.password;
     contactNumberController.addListener(_ensurePrefix);
+    currentIndex = context.read<SideMenuIndexController>().currentIndexSelected;
+  }
+
+  Future<PlatformFile?> getImage() async {
+    FilePickerResult? img = await FilePicker.platform.pickFiles(
+      withData: true,
+      type: FileType.custom,
+      allowedExtensions: [
+        'png',
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+      ],
+    );
+    if (img != null) {
+      PlatformFile? file = img.files.firstOrNull;
+      if (file != null) {
+        return file;
+      }
+    }
+    return null;
   }
 
   Future<void> handleFieldUpdate(
@@ -91,11 +121,10 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
 
       if (context.mounted) {
         Navigator.pop(context);
-        // Update the local state dynamically
+
         Provider.of<AccountDataController>(context, listen: false).updateRegistrarLocal(updatedFields);
         setState(() {
           changePassTapped = false;
-          toSaveFirstName = false;
         });
         DelightfulToast.showSuccess(context, 'Success', 'Update Success.');
       }
@@ -133,27 +162,124 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
     }
   }
 
-  void selectImage(BuildContext context) async {
-    try {
-      Uint8List? img = await _imageService.pickImage(context);
-      if (img != null) {
-        if (kDebugMode) print('Image picked successfully.');
-        setState(() {
-          _image = img;
-          isImageChanged = true;
-        });
-      } else {
-        if (kDebugMode) print('Image picking failed or was cancelled.');
-        setState(() {
-          isImageChanged = false;
-        });
-      }
-    } catch (e) {
-      if (kDebugMode) print('Error picking image: ${e.toString()}');
-      setState(() {
-        isImageChanged = false;
-      });
-    }
+  @override
+  Widget build(BuildContext context) {
+    AppSizes().init(context);
+
+    return Container(
+      height: AppSizes.screenHeight,
+      decoration: const BoxDecoration(
+        color: CustomColors.appBarColor,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const CustomDrawerHeader(
+              headerName: 'profile',
+              isToHide: true,
+            ),
+            const SizedBox(height: 20),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 15.0,
+              runSpacing: 10.0,
+              children: [
+                if (ResponsiveWidget.isSmallScreen(context) || ResponsiveWidget.isMediumScreen(context))
+                  Center(
+                      child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        height: 250,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(25),
+                          child: _image != null
+                              ? kIsWeb
+                                  ? Image.memory(
+                                      _image!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.memory(
+                                      _image!,
+                                      fit: BoxFit.cover,
+                                    )
+                              : Image.asset(
+                                  CustomLogos.editProfileImage,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => updateProfilePic(),
+                        child: const Text(
+                          'Change',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      // if (isImageChanged)
+                      //   CustomActionButton(
+                      //     text: 'Save',
+                      //     backgroundColor: Colors.green,
+                      //     textColor: Colors.white,
+                      //     onPressed: () {
+                      //       if (_formKey.currentState!.validate()) {}
+                      //     },
+                      //   ),
+                    ],
+                  )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: 300,
+                      child: changePass == false ? accountInformation(context, currentIndex) : accountChangePassword(context, currentIndex),
+                    ),
+                    if (ResponsiveWidget.isLargeScreen(context))
+                      Column(
+                        // crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: ProfilePic(),
+                          ),
+                          const SizedBox(height: 15),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextButton(
+                                onPressed: () => updateProfilePic(),
+                                child: const Text(
+                                  'Change ',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              Text(
+                                '(Image should be Min. of 1mb)',
+                                style: TextStyle(color: Colors.blue.shade900),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // if (isImageChanged)
+                          //   CustomActionButton(
+                          //     text: 'Save',
+                          //     backgroundColor: Colors.green,
+                          //     textColor: Colors.white,
+                          //     onPressed: () {
+                          //       if (_formKey.currentState!.validate()) {}
+                          //     },
+                          //   ),
+                        ],
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _ensurePrefix() {
@@ -178,140 +304,6 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
     newPasswordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    AppSizes().init(context);
-    // Get the current index selected before going back
-    int currentIndex = context.read<SideMenuIndexController>().currentIndexSelected;
-
-    return Container(
-      height: AppSizes.screenHeight,
-      decoration: const BoxDecoration(
-        color: CustomColors.appBarColor,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const CustomDrawerHeader(
-              headerName: 'profile',
-              isToHide: true,
-            ),
-            const SizedBox(
-              height: 100,
-            ),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 15.0, runSpacing: 10.0, children: [
-              if (ResponsiveWidget.isSmallScreen(context) || ResponsiveWidget.isMediumScreen(context))
-                Center(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      height: 250,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: _image != null
-                            ? kIsWeb
-                                ? Image.memory(
-                                    _image!,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.memory(
-                                    _image!,
-                                    fit: BoxFit.cover,
-                                  )
-                            : Image.asset(
-                                CustomLogos.editProfileImage,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => selectImage(context),
-                      child: const Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    if (isImageChanged)
-                      CustomActionButton(
-                        text: 'Save',
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
-                        },
-                      ),
-                  ],
-                )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    width: 300,
-                    child: changePass == false ? accountInformation(context, currentIndex) : accountChangePassword(context, currentIndex),
-                  ),
-                  if (ResponsiveWidget.isLargeScreen(context))
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          height: 369,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(25),
-                            child: _image != null
-                                ? kIsWeb
-                                    ? Image.memory(
-                                        _image!,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Image.memory(
-                                        _image!,
-                                        fit: BoxFit.cover,
-                                      )
-                                : Image.asset(
-                                    CustomLogos.editProfileImage,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => selectImage(context),
-                          child: const Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Edit ',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                TextSpan(
-                                  text: '(Image should be Min. of 1mb)',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        if (isImageChanged)
-                          CustomActionButton(
-                            text: 'Save',
-                            backgroundColor: Colors.green,
-                            textColor: Colors.white,
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {}
-                            },
-                          ),
-                      ],
-                    ),
-                ],
-              ),
-            ]),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget accountInformation(BuildContext context, int currentIndex) {
@@ -352,46 +344,82 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
                 ),
               ),
               if (toSaveFirstName)
-                IconButton(
-                    tooltip: 'Save First Name',
-                    onPressed: () async {
-                      await handleFieldUpdate(context, {
-                        'firstName': firstNameController.text.trim(),
-                      });
-                    },
-                    icon: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                    )),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: IconButton(
+                      tooltip: 'Save First Name',
+                      onPressed: () async {
+                        await handleFieldUpdate(context, {
+                          'firstName': firstNameController.text.trim(),
+                        });
+                        if (!context.mounted) return;
+                        setState(() {
+                          toSaveFirstName = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )),
+                ),
             ],
           ),
           const SizedBox(height: 5),
           const Text(
             'Middle Name',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 5),
-          customTextFormField2(
-            middleNameController,
-            const TextStyle(color: Colors.black),
-            50,
-            null,
-            const InputDecoration(
-              labelStyle: TextStyle(color: Colors.black),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            validator: (value) => value == null || value.isEmpty ? 'Middle name is required.' : null,
-            enabled: middleNameController.text == 'Main Admin' ? false : true,
-            onChanged: (value) {
-              setState(() {
-                if (middleName != value) {
-                  toSave = true;
-                } else {
-                  toSave = false;
-                }
-              });
-            },
+          Row(
+            children: [
+              Expanded(
+                child: customTextFormField2(
+                  middleNameController,
+                  const TextStyle(color: Colors.black),
+                  50,
+                  null,
+                  const InputDecoration(
+                    labelStyle: TextStyle(color: Colors.black),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  // validator: (value) => value == null || value.isEmpty ? 'Middle name is required.' : null,
+                  // enabled: middleNameController.text == 'Main Admin' ? false : true,
+                  onChanged: (value) {
+                    setState(() {
+                      if (middleName != value) {
+                        toSaveMiddleName = true;
+                      } else {
+                        toSaveMiddleName = false;
+                      }
+                    });
+                  },
+                ),
+              ),
+              if (toSaveMiddleName)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: IconButton(
+                      tooltip: 'Save Middle Name',
+                      onPressed: () async {
+                        await handleFieldUpdate(context, {
+                          'middleName': middleNameController.text.trim(),
+                        });
+                        if (!context.mounted) return;
+                        setState(() {
+                          toSaveMiddleName = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )),
+                ),
+            ],
           ),
           const SizedBox(height: 5),
           const Text(
@@ -399,27 +427,52 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
           ),
           const SizedBox(height: 5),
-          customTextFormField2(
-            lastNameController,
-            const TextStyle(color: Colors.black),
-            50,
-            null,
-            const InputDecoration(
-              labelStyle: TextStyle(color: Colors.black),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            validator: (value) => value == null || value.isEmpty ? 'Last name is required.' : null,
-            enabled: lastNameController.text == 'Main Admin' ? false : true,
-            onChanged: (value) {
-              setState(() {
-                if (lastName != value) {
-                  toSave = true;
-                } else {
-                  toSave = false;
-                }
-              });
-            },
+          Row(
+            children: [
+              Expanded(
+                child: customTextFormField2(
+                  lastNameController,
+                  const TextStyle(color: Colors.black),
+                  50,
+                  null,
+                  const InputDecoration(
+                    labelStyle: TextStyle(color: Colors.black),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Last name is required.' : null,
+                  // enabled: lastNameController.text == 'Main Admin' ? false : true,
+                  onChanged: (value) {
+                    setState(() {
+                      if (lastName != value) {
+                        toSaveLastName = true;
+                      } else {
+                        toSaveLastName = false;
+                      }
+                    });
+                  },
+                ),
+              ),
+              if (toSaveLastName)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: IconButton(
+                      tooltip: 'Save Middle Name',
+                      onPressed: () async {
+                        await handleFieldUpdate(context, {
+                          'lastName': lastNameController.text.trim(),
+                        });
+                        if (!context.mounted) return;
+                        setState(() {
+                          toSaveLastName = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )),
+                ),
+            ],
           ),
           const SizedBox(height: 5),
           const Text(
@@ -431,51 +484,100 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
             ),
           ),
           const SizedBox(height: 5),
-          customTextFormField2(
-              contactNumberController,
-              const TextStyle(color: Colors.black),
-              13,
-              [
-                FilteringTextInputFormatter.allow(RegExp(r'^[+]?[0-9]*$')),
-              ],
-              const InputDecoration(
-                labelStyle: TextStyle(color: Colors.black),
-                filled: true,
-                fillColor: Colors.white,
+          Row(
+            children: [
+              Expanded(
+                child: customTextFormField2(
+                  contactNumberController,
+                  const TextStyle(color: Colors.black),
+                  13,
+                  [
+                    FilteringTextInputFormatter.allow(RegExp(r'^[+]?[0-9]*$')),
+                  ],
+                  const InputDecoration(
+                    labelStyle: TextStyle(color: Colors.black),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  validator: (value) => TextValidator.validateContact(value),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.trim() != contactNumber) {
+                        toSaveContact = true;
+                      } else {
+                        toSaveContact = false;
+                      }
+                    });
+                  },
+                  keyboardType: const TextInputType.numberWithOptions(),
+                ),
               ),
-              validator: (value) => TextValidator.validateContact(value),
-              onChanged: (value) {
-                setState(() {
-                  if (value.trim() != contactNumber) {
-                    toSave = true;
-                  } else {
-                    toSave = false;
-                  }
-                });
-              },
-              keyboardType: const TextInputType.numberWithOptions()),
+              if (toSaveContact)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: IconButton(
+                      onPressed: () async {
+                        await handleFieldUpdate(context, {
+                          'contact': contactNumberController.text.trim(),
+                        });
+                        if (!context.mounted) return;
+                        setState(() {
+                          toSaveContact = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )),
+                ),
+            ],
+          ),
           const SizedBox(height: 5),
           const Text(
             'Email',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
           ),
           const SizedBox(height: 5),
-          customTextFormField2(
-            emailController,
-            const TextStyle(color: Colors.black),
-            50,
-            null,
-            const InputDecoration(labelStyle: TextStyle(color: Colors.black), filled: true, fillColor: Colors.white),
-            validator: (value) => TextValidator.validateEmail(value),
-            onChanged: (value) {
-              setState(() {
-                if (email != value) {
-                  toSave = true;
-                } else {
-                  toSave = false;
-                }
-              });
-            },
+          Row(
+            children: [
+              Expanded(
+                child: customTextFormField2(
+                  emailController,
+                  const TextStyle(color: Colors.black),
+                  50,
+                  null,
+                  const InputDecoration(labelStyle: TextStyle(color: Colors.black), filled: true, fillColor: Colors.white),
+                  validator: (value) => TextValidator.validateEmail(value),
+                  onChanged: (value) {
+                    setState(() {
+                      if (email != value) {
+                        toSaveEmail = true;
+                      } else {
+                        toSaveEmail = false;
+                      }
+                    });
+                  },
+                ),
+              ),
+              if (toSaveEmail)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: IconButton(
+                      onPressed: () async {
+                        await handleFieldUpdate(context, {
+                          'email': emailController.text.trim(),
+                        });
+                        if (!context.mounted) return;
+                        setState(() {
+                          toSaveEmail = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )),
+                ),
+            ],
           ),
           const SizedBox(height: 5),
           const Text(
@@ -483,7 +585,18 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
           ),
           const SizedBox(height: 5),
-          customTextFormField2(identificationController, const TextStyle(color: Colors.black), 12, null, const InputDecoration(labelStyle: TextStyle(color: Colors.black), filled: true, fillColor: Colors.white), validator: (value) => TextValidator.validateEmail(value), enabled: false),
+          customTextFormField2(
+            identificationController,
+            const TextStyle(color: Colors.black),
+            12,
+            null,
+            const InputDecoration(
+              labelStyle: TextStyle(color: Colors.black),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            enabled: false,
+          ),
           Align(
             alignment: Alignment.centerRight,
             child: Row(
@@ -569,6 +682,7 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
                 ),
             ],
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -608,7 +722,7 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
                 dPrint('Value entered: ${value.trim()}');
                 dPrint('Current password: ${currentPassword?.trim()}');
                 if (value.trim() != currentPassword!.trim()) {
-                  return 'Current password does not match!';
+                  return 'This is not your password.';
                 }
               }
               return null;
@@ -757,8 +871,7 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
                                 setState(() {
                                   changePassTapped = true;
                                 });
-                                // await _handleSavePassword(context,
-                                //     int.parse(widget.userId.toString()));
+                                await handleFieldUpdate(context, {'password': newPasswordController.text.trim()});
                               }
                             } catch (e) {
                               // Handle errors during password change
@@ -786,14 +899,27 @@ class _AccountSettingsDashboardState extends State<AccountSettingsDashboard> {
       ),
     );
   }
+
+  void toggleLoading() => setState(() {
+        isLoading = !isLoading;
+      });
+
+  void updateProfilePic() async {
+    if (isLoading) return;
+    toggleLoading();
+    final file = await getImage();
+    if (file != null) {
+      if (!mounted) return;
+      showLoadingDialog(context, 'Updating profile pic...');
+      final result = await authProvider.changeProfilePic(widget.userId, file);
+      if (!mounted) return;
+      if (result != null) {
+        DelightfulToast.showError(context, 'Error', result);
+      } else {
+        context.read<AccountDataController>().toggleProfilePicChanged();
+      }
+      Nav.pop(context);
+    }
+    toggleLoading();
+  }
 }
-
-
-// isLoading
-//           ? const Center(
-//               child: SpinKitFadingCircle(
-//                 color: Colors.blue,
-//                 size: 34.0,
-//               ),
-//             )
-//           :

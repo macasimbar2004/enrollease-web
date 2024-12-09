@@ -458,6 +458,7 @@ class _RegistrarDialogState extends State<RegistrarDialog> {
         }
         showLoadingDialog(context, 'Creating Record...');
         final registrar = RegistrarModel(
+          profilePicLink: '',
           id: idNumberController.text.trim(),
           lastName: lastNameController.text.trim(),
           firstName: firstNameController.text.trim(),

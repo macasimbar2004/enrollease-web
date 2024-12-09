@@ -1,9 +1,8 @@
-import 'package:enrollease_web/account_screen/account_settings_dashboard.dart';
+import 'package:enrollease_web/account_screen/profile_page.dart';
 import 'package:enrollease_web/pages/payments.dart';
 import 'package:enrollease_web/pages/statement_of_account.dart';
 import 'package:enrollease_web/pages/dashboard.dart';
 import 'package:enrollease_web/pages/enrollments.dart';
-import 'package:enrollease_web/pages/academic_calendar.dart';
 import 'package:enrollease_web/pages/registrars.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:flutter/material.dart';
@@ -45,20 +44,19 @@ class ScreenSelectorController extends StatelessWidget {
               userId: userId,
             );
             break;
-          case 4:
-            selectedWidget = AcademicCalendar(
-              userId: userId,
-            );
-            break;
+          // case 4:
+          //   selectedWidget = AcademicCalendar(
+          //     userId: userId,
+          //   );
+          // break;
           case 5:
-            selectedWidget = AccountSettingsDashboard(
-              userId: userId,
+            selectedWidget = ProfilePage(
+              userId: userId!,
             );
             break;
           case 6:
-            selectedWidget = const PaymentsPage(
-              userId: '',
-              data: {},
+            selectedWidget = PaymentsPage(
+              userId: userId!,
             );
           default:
             selectedWidget = Container(

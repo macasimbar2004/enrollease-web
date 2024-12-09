@@ -37,6 +37,7 @@ void registrarsStreamDataSource(
                             editMode: true,
                             id: '',
                             registrar: RegistrarModel(
+                              profilePicLink: docData['profilePicLink'],
                               id: docData['id'],
                               lastName: docData['lastName'],
                               firstName: docData['firstName'],

@@ -97,7 +97,7 @@ class _DashboardState extends State<Dashboard> {
                       Padding(
                         padding: const EdgeInsets.only(left: 20),
                         child: Text(
-                          'Notifications',
+                          'Audit Log',
                           style: CustomTextStyles.lusitanaFont(
                             color: Colors.white,
                             fontSize: 24,

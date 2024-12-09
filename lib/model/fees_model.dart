@@ -49,13 +49,13 @@ class FeesModel {
 
   factory FeesModel.fromMap(Map<String, dynamic> data) {
     return FeesModel(
-      entrance: data['entrance'],
-      tuition: data['tuition'],
-      misc: data['misc'],
-      books: data['books'],
-      watchman: data['watchman'],
-      aircon: data['aircon'],
-      others: data['others'],
+      entrance: data['entrance'] ?? 0,
+      tuition: data['tuition'] ?? 0,
+      misc: data['misc'] ?? 0,
+      books: data['books'] ?? 0,
+      watchman: data['watchman'] ?? 0,
+      aircon: data['aircon'] ?? 0,
+      others: data['others'] ?? 0,
     );
   }
 
@@ -85,4 +85,8 @@ enum FeeType {
 extension FeeStrings on FeeType {
   String firstLetter() => name[0];
   String formalName() => '${name[0].toUpperCase()}${name.substring(1)}';
+}
+
+String formatTotal(double number, {bool pesoSign = true}) {
+  return '${pesoSign ? 'P' : ''}${NumberFormat('#,###').format(number)}';
 }

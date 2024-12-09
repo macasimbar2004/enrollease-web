@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AccountDataController extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isLoading = false;
+  bool _profilePicChanged = false;
 
   FetchingRegistrarModel? _currentRegistrar;
 
@@ -15,9 +16,15 @@ class AccountDataController extends ChangeNotifier {
 
   String? _currentRoute;
   String? get currentRoute => _currentRoute;
+  bool get profilePicChanged => _profilePicChanged;
 
   AccountDataController() {
     _loadUserData();
+  }
+
+  void toggleProfilePicChanged() {
+    _profilePicChanged = !profilePicChanged;
+    notifyListeners();
   }
 
   // Load user data from SharedPreferences
@@ -27,6 +34,7 @@ class AccountDataController extends ChangeNotifier {
     _currentRoute = prefs.getString('currentRoute');
 
     _currentRegistrar = FetchingRegistrarModel(
+      profilePicLink: prefs.getString('profilePicLink') ?? '',
       id: prefs.getString('userId') ?? '',
       lastName: prefs.getString('lastName') ?? '',
       firstName: prefs.getString('firstName') ?? '',
@@ -65,6 +73,7 @@ class AccountDataController extends ChangeNotifier {
 
     // Saving registrar fields into SharedPreferences
     await prefs.setString('userId', registrar.id);
+    await prefs.setString('profilePicLink', registrar.profilePicLink);
     await prefs.setString('lastName', registrar.lastName);
     await prefs.setString('firstName', registrar.firstName);
     await prefs.setString('middleName', registrar.middleName);
@@ -101,23 +110,23 @@ class AccountDataController extends ChangeNotifier {
       });
 
       // Recreate the model with the updated data, but retain the original values for other fields
-      _currentRegistrar = FetchingRegistrarModel(
-        id: currentData['userId'] ?? _currentRegistrar!.id,
-        lastName: currentData['lastName'] ?? _currentRegistrar!.lastName,
-        firstName: currentData['firstName'] ?? _currentRegistrar!.firstName,
-        middleName: currentData['middleName'] ?? _currentRegistrar!.middleName,
-        dateOfBirth: currentData['dateOfBirth'] ?? _currentRegistrar!.dateOfBirth,
-        age: currentData['age'] ?? _currentRegistrar!.age,
-        contact: currentData['contact'] ?? _currentRegistrar!.contact,
-        placeOfBirth: currentData['placeOfBirth'] ?? _currentRegistrar!.placeOfBirth,
-        address: currentData['currentUserDivision'] ?? _currentRegistrar!.address,
-        email: currentData['currentEmail'] ?? _currentRegistrar!.email,
-        remarks: currentData['remarks'] ?? _currentRegistrar!.remarks,
-        nameExtension: currentData['nameExtension'] ?? _currentRegistrar!.nameExtension,
-        password: currentData['currentPassword'] ?? _currentRegistrar!.password,
-        jobLevel: currentData['userRole'] ?? _currentRegistrar!.jobLevel,
+      _currentRegistrar = _currentRegistrar?.copyWith(
+        id: currentData['userId'],
+        lastName: currentData['lastName'],
+        firstName: currentData['firstName'],
+        middleName: currentData['middleName'],
+        dateOfBirth: currentData['dateOfBirth'],
+        age: currentData['age'],
+        contact: currentData['contact'],
+        placeOfBirth: currentData['placeOfBirth'],
+        address: currentData['currentUserDivision'],
+        email: currentData['currentEmail'],
+        remarks: currentData['remarks'],
+        nameExtension: currentData['nameExtension'],
+        password: currentData['currentPassword'],
+        jobLevel: currentData['userRole'],
       );
-
+      setRegistrarData(registrar: _currentRegistrar);
       dPrint('Updated data: ${_currentRegistrar!.toMap()}');
       notifyListeners(); // Notify listeners to refresh UI
     }
