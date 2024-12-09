@@ -93,7 +93,7 @@ class FetchingRegistrarModel {
   factory FetchingRegistrarModel.fromMap(String id, Map<String, dynamic> data) {
     return FetchingRegistrarModel(
       profilePicLink: data['profilePicLink'] ?? '',
-      id: id.isEmpty ? data['id'] ?? '' : '',
+      id: id.isEmpty ? data['id'] ?? '' : id,
       lastName: data['lastName'],
       firstName: data['firstName'],
       middleName: data['middleName'],

@@ -50,9 +50,7 @@ class ScreenSelectorController extends StatelessWidget {
           //   );
           // break;
           case 5:
-            selectedWidget = ProfilePage(
-              userId: userId!,
-            );
+            selectedWidget = const ProfilePage();
             break;
           case 6:
             selectedWidget = PaymentsPage(

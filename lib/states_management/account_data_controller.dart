@@ -125,6 +125,7 @@ class AccountDataController extends ChangeNotifier {
         nameExtension: currentData['nameExtension'],
         password: currentData['currentPassword'],
         jobLevel: currentData['userRole'],
+        profilePicLink: currentData['profilePicLink'],
       );
       setRegistrarData(registrar: _currentRegistrar);
       dPrint('Updated data: ${_currentRegistrar!.toMap()}');
@@ -158,6 +159,7 @@ class AccountDataController extends ChangeNotifier {
       await prefs.remove('nameExtension');
       await prefs.remove('currentPassword');
       await prefs.remove('userRole');
+      await prefs.remove('profilePicLink');
     }
     notifyListeners();
   }

@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/v4.dart';
 
 class FirebaseAuthProvider {
@@ -96,23 +97,10 @@ class FirebaseAuthProvider {
           dPrint('Sign-in successful for ID: $id');
 
           // Create FetchingRegistrarModel from Firestore data
-          final registrar = FetchingRegistrarModel(
-            profilePicLink: data?['profilePicLink'] ?? '',
-            id: data?['id'] ?? '',
-            lastName: data?['lastName'] ?? '',
-            firstName: data?['firstName'] ?? '',
-            middleName: data?['middleName'] ?? '',
-            dateOfBirth: data?['dateOfBirth'] ?? '',
-            age: data?['age'] ?? '',
-            contact: data?['contact'] ?? '',
-            placeOfBirth: data?['placeOfBirth'] ?? '',
-            address: data?['address'] ?? '',
-            email: data?['email'] ?? '',
-            remarks: data?['remarks'] ?? '',
-            nameExtension: data?['nameExtension'] ?? '', // Nullable
-            password: data?['password'] ?? '',
-            jobLevel: data?['jobLevel'] ?? '',
-          );
+          FetchingRegistrarModel? registrar;
+          if (data != null) {
+            registrar = FetchingRegistrarModel.fromMap(id, data);
+          }
 
           // Set registrar data in AccountDataController
           if (context.mounted) {
@@ -230,7 +218,9 @@ class FirebaseAuthProvider {
   }
 
   Future<Uint8List?> getProfilePic(BuildContext context) async {
-    String userId = context.read<AccountDataController>().currentRegistrar?.id ?? '';
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId') ?? '--';
+    if (userId.isEmpty) throw ('cannot get profile pic, id is empty!');
     final data = await FirebaseFirestore.instance.collection('registrars').doc(userId).get();
     try {
       if (!data.exists) {
@@ -253,7 +243,7 @@ class FirebaseAuthProvider {
   }
 
   Future<String?> changeProfilePic(String registrarID, PlatformFile file) async {
-    if (registrarID.isEmpty) throw ('registrars was blank!');
+    if (registrarID.isEmpty) throw ('cannot update, id is empty!!');
     final mimeType = kIsWeb ? lookupMimeType('', headerBytes: file.bytes) : lookupMimeType(file.path!);
     // dPrint(mimeType);
     try {

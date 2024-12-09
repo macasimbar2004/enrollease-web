@@ -22,9 +22,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
-  final String userId;
-
-  const ProfilePage({super.key, required this.userId});
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -121,7 +119,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (context.mounted) {
         Navigator.pop(context);
-
         Provider.of<AccountDataController>(context, listen: false).updateRegistrarLocal(updatedFields);
         setState(() {
           changePassTapped = false;
@@ -911,7 +908,8 @@ class _ProfilePageState extends State<ProfilePage> {
     if (file != null) {
       if (!mounted) return;
       showLoadingDialog(context, 'Updating profile pic...');
-      final result = await authProvider.changeProfilePic(widget.userId, file);
+      final id = Provider.of<AccountDataController>(context, listen: false).currentRegistrar!.id;
+      final result = await authProvider.changeProfilePic(id, file);
       if (!mounted) return;
       if (result != null) {
         DelightfulToast.showError(context, 'Error', result);
