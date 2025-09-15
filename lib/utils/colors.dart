@@ -6,4 +6,5 @@ class CustomColors {
   static const bottomNavColor = Color.fromRGBO(86, 112, 83, 1);
   static const signInColor = Color.fromRGBO(221, 227, 216, 1);
   static const color1 = Color.fromRGBO(73, 98, 70, 1);
+  static const primaryColor = appBarColor;
 }

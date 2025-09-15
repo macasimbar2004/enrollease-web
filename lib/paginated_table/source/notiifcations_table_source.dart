@@ -15,10 +15,10 @@ class NotifcationsTableSource extends DataTableSource {
   DataRow? getRow(int index) {
     if (index >= data.length) return null;
     return DataRow(
-      onSelectChanged: (value) {
-        viewNotification(data[index]);
-      },
-      color: data[index]['isRead'] == true ? const WidgetStatePropertyAll(Colors.grey) : null,
+      // onSelectChanged: (value) {
+      //   viewNotification(data[index]);
+      // },
+      // color: data[index]['isRead'] == true ? const WidgetStatePropertyAll(Colors.grey) : null,
       cells: _buildDataCells(data[index]),
     );
   }
@@ -26,16 +26,24 @@ class NotifcationsTableSource extends DataTableSource {
   List<DataCell> _buildDataCells(Map<String, dynamic> rowData) {
     // dPrint(rowData.toString());
     final fields = [
-      'title',
+      // 'title',
       'content',
       'timestamp',
     ];
+
+    // const columnLabels = [
+    //   'Title',
+    //   'Message',
+    //   'Date',
+    //   // 'Action',
+    // ]; // Column labels
+
     return fields.map((field) {
       String cellValue = '';
-      if (field == 'timestamp') {
+      if (field == 'timestamp' && rowData[field] != null) {
         cellValue = DateFormat('dd MMM yyyy').format((rowData[field] as Timestamp).toDate());
       } else {
-        cellValue = rowData[field] ?? '';
+        cellValue = rowData[field] ?? '--';
       }
 
       // if (field == 'action') {
@@ -69,7 +77,7 @@ class NotifcationsTableSource extends DataTableSource {
   Future<void> viewNotification(Map<String, dynamic> rowData) async {
     return showDynamicDialog(
       context: context,
-      title: rowData['title'] ?? '--',
+      title: Text(rowData['title'] ?? '--'),
       contentWidgets: Column(
         children: [
           const SizedBox(height: 20),

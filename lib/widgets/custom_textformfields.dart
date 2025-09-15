@@ -22,6 +22,7 @@ class CustomTextFormField extends StatefulWidget {
   final Color? fillColor;
   final bool? maxLine;
   final bool onlyDigits;
+  final bool isReadOnly; // Add read-only parameter
 
   const CustomTextFormField(
       {super.key,
@@ -43,8 +44,8 @@ class CustomTextFormField extends StatefulWidget {
       this.maxLength,
       this.toFillColor = false,
       this.fillColor,
-      this.maxLine});
-
+      this.maxLine,
+      this.isReadOnly = false});
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
 }
@@ -95,53 +96,71 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       obscureText: _toShow,
       controller: widget.controller,
       focusNode: widget.focusNode,
-      readOnly: widget.isDateTime == true,
+      readOnly: widget.isDateTime == true || widget.isReadOnly,
       decoration: InputDecoration(
         filled: widget.toFillColor,
         fillColor: widget.fillColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(12.0),
           borderSide: const BorderSide(color: Colors.white, width: 1.0),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.grey, width: 1.0),
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.blue, width: 1.0),
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: const BorderSide(color: Colors.blue, width: 1.5),
         ),
-        prefixIcon: widget.toShowPrefixIcon ? Icon(widget.iconData) : null,
-        suffixIcon: widget.toShowIcon && widget.iconDataSuffix != null
+        prefixIcon: widget.toShowPrefixIcon
+            ? Icon(widget.iconData, size: 22, color: Colors.grey.shade600)
+            : null,
+        suffixIcon: widget.isDateTime == true
             ? IconButton(
-                onPressed: widget.isDateTime == true ? _selectDate : null,
-                icon: Icon(widget.iconDataSuffix),
+                onPressed: _selectDate,
+                icon: const Icon(Icons.calendar_today,
+                    size: 22, color: Colors.blue),
+                tooltip: 'Select Date',
               )
-            : widget.toShowIcon
+            : widget.toShowIcon && widget.iconDataSuffix != null
                 ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _toShow = !_toShow;
-                      });
-                    },
-                    icon: _toShow ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
+                    onPressed: null,
+                    icon: Icon(widget.iconDataSuffix,
+                        size: 22, color: Colors.grey.shade600),
                   )
-                : null,
-        contentPadding: EdgeInsets.only(top: 16.0, bottom: 16, left: widget.leftPadding ?? 10),
+                : widget.toShowIcon
+                    ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _toShow = !_toShow;
+                          });
+                        },
+                        icon: _toShow
+                            ? Icon(Icons.visibility,
+                                size: 22, color: Colors.grey.shade600)
+                            : Icon(Icons.visibility_off,
+                                size: 22, color: Colors.grey.shade600),
+                      )
+                    : null,
+        contentPadding: EdgeInsets.symmetric(
+            vertical: 16.0, horizontal: widget.leftPadding ?? 16.0),
         hintText: widget.hintText,
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
           fontWeight: FontWeight.w400,
-          color: Colors.black,
-          fontSize: 12.0,
+          color: Colors.grey.shade600,
+          fontSize: 14.0,
         ),
         labelText: widget.toShowLabelText != null ? widget.hintText : null,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.w400,
-          color: Colors.black,
-          fontSize: 12.0,
+        labelStyle: TextStyle(
+          fontWeight: FontWeight.w500,
+          color: Colors.grey.shade700,
+          fontSize: 14.0,
         ),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
       ),
-      keyboardType: widget.onlyDigits || widget.isPhoneNumber ? const TextInputType.numberWithOptions() : null,
+      keyboardType: widget.onlyDigits || widget.isPhoneNumber
+          ? const TextInputType.numberWithOptions()
+          : null,
       maxLength: widget.isPhoneNumber ? 11 : widget.maxLength,
       inputFormatters: widget.onlyDigits || widget.isPhoneNumber
           ? [FilteringTextInputFormatter.digitsOnly] // Restrict to digits only
@@ -151,7 +170,12 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   }
 }
 
-TextFormField customTextFormField2(TextEditingController controller, TextStyle? style, int? maxLength, List<TextInputFormatter>? inputFormatters, InputDecoration? decoration,
+TextFormField customTextFormField2(
+    TextEditingController controller,
+    TextStyle? style,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
+    InputDecoration? decoration,
     {bool enabled = true,
     String? Function(String?)? validator,
     FocusNode? focusNode, // Add the FocusNode as an optional parameter
@@ -183,10 +207,16 @@ class MyFormFieldWidget extends StatelessWidget {
       enabled: false, // Makes the TextFormField non-interactive
       decoration: InputDecoration(
         hintText: hintText, // Displays generated ID as hint
-        hintStyle: const TextStyle(color: Colors.grey), // Hint text color gray
-        filled: true, // Optional: makes the background color filled
-        fillColor: Colors.grey[200], // Light gray background color
-        border: const OutlineInputBorder(), // Border for the TextFormField
+        hintStyle: TextStyle(
+            color: Colors.grey.shade600), // Match the style of other fields
+        filled: true,
+        fillColor: Colors.grey[200],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0), // Match other fields
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        isDense: true, // Make it more compact
       ),
     );
   }
@@ -197,25 +227,36 @@ TextFormField buildTextField({
   String? labelText,
 }) {
   return TextFormField(
-      initialValue: initialValue,
-      enabled: false,
-      style: const TextStyle(
-        color: Colors.black,
+    initialValue: initialValue,
+    enabled: false,
+    style: const TextStyle(
+      color: Colors.black,
+      fontSize: 14.0,
+    ),
+    decoration: InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w500,
+        color: Colors.black87,
+        fontSize: 14.0,
       ),
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-          fontSize: 15.0,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.white, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.grey, width: 1.0),
-        ),
-      ));
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: const BorderSide(color: Colors.white, width: 1.0),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+      ),
+      // Improve padding to match other fields
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+      // Set a reasonable constraint to avoid overflow
+      isDense: true,
+    ),
+  );
 }

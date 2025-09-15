@@ -1,9 +1,11 @@
+import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/civil_status_enum.dart';
 import 'package:enrollease_web/model/enrollment_status_enum.dart';
 import 'package:enrollease_web/model/gender_enum.dart';
 import 'package:enrollease_web/model/grade_enum.dart';
 
 class EnrollmentFormModel {
+  // final String disapprovalMessage;
   final String regNo;
   final String firstName;
   final String lastName;
@@ -42,6 +44,7 @@ class EnrollmentFormModel {
   final DateTime timestamp;
 
   EnrollmentFormModel({
+    // required this.disapprovalMessage,
     required this.address,
     required this.motherTongue,
     required this.civilStatus,
@@ -124,6 +127,9 @@ class EnrollmentFormModel {
 
   // Create model from Map
   factory EnrollmentFormModel.fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) {
+      dPrint('Data is empty!');
+    }
     late Grade enrollingGrade;
     late EnrollmentStatus status;
     late Gender gender;
@@ -136,7 +142,7 @@ class EnrollmentFormModel {
         cs = CivilStatus.married;
         break;
     }
-    switch (map['enrollingGrade']) {
+    switch (map['enrollingGrade']?.toString().toLowerCase() ?? '') {
       case 'nursery':
         enrollingGrade = Grade.nursery;
         break;
@@ -164,6 +170,8 @@ class EnrollmentFormModel {
       case 'g6':
         enrollingGrade = Grade.g6;
         break;
+      default:
+        enrollingGrade = Grade.nursery; // Default value
     }
     switch (map['status']) {
       case 'approved':

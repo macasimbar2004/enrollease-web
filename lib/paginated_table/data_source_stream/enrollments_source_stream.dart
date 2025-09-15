@@ -11,7 +11,6 @@ void enrollmentsSourceStream(
   TableEnrollmentStatus eStatus,
 ) {
   if (streamController.isClosed) return;
-  // dPrint('New e status is $eStatus');
   final collectionRef = eStatus == TableEnrollmentStatus.any
       ? FirebaseFirestore.instance.collection('enrollment_forms').orderBy('timestamp')
       : FirebaseFirestore.instance

@@ -1,5 +1,6 @@
 import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
+import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,9 +20,9 @@ class SettingsMenu extends StatelessWidget {
       child: Column(
         children: [
           _buildMenuItem(
-            text: 'Account Setting',
+            text: 'Profile',
             onTap: () {
-              context.read<SideMenuIndexController>().setSelectedIndex(6);
+              context.read<SideMenuIndexController>().setSelectedIndex(10);
               Navigator.pop(context);
             },
           ),
@@ -40,25 +41,7 @@ class SettingsMenu extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<AccountDataController>().setLoggedIn(false);
-                context.read<SideMenuIndexController>().setSelectedIndex(0);
-                GoRouter.of(context).go('/');
-              },
-              child: const Text('Logout'),
-            ),
-          ],
-        );
+        return const LogoutDialog();
       },
     );
   }
@@ -87,6 +70,59 @@ class SettingsMenu extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class LogoutDialog extends StatefulWidget {
+  const LogoutDialog({super.key});
+
+  @override
+  State<LogoutDialog> createState() => _LogoutDialogState();
+}
+
+class _LogoutDialogState extends State<LogoutDialog> {
+  bool loading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: loading ? const Text('Logging out ...') : const Text('Logout'),
+      content: loading
+          ? const SizedBox(
+              width: 50,
+              height: 50,
+              child: Center(child: CircularProgressIndicator()))
+          : const Text('Are you sure you want to logout?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () async {
+            setState(() {
+              loading = !loading;
+            });
+            final registrar =
+                Provider.of<AccountDataController>(context, listen: false)
+                    .currentRegistrar!;
+            await FirebaseAuthProvider().addNotification(
+              content:
+                  'Registrar ${registrar.firstName} ${registrar.lastName} has logged out.\nRegistration Number: ${registrar.id}',
+              type: 'registrar',
+              uid: '',
+              targetType: 'registrar',
+            );
+            if (!context.mounted) return;
+            context.read<AccountDataController>().setLoggedIn(false);
+            context.read<SideMenuIndexController>().setSelectedIndex(0);
+            GoRouter.of(context).go('/');
+            Navigator.of(context).pop();
+          },
+          child: const Text('Logout'),
+        ),
+      ],
     );
   }
 }

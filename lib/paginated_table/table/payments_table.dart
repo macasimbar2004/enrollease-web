@@ -9,7 +9,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class PaymentsTable extends StatefulWidget {
   final String userId;
-  const PaymentsTable({required this.userId, super.key});
+  final String balanceAccID;
+  const PaymentsTable({required this.userId, required this.balanceAccID, super.key});
 
   @override
   State<PaymentsTable> createState() => _PaymentsTableState();
@@ -25,14 +26,14 @@ class _PaymentsTableState extends State<PaymentsTable> {
     super.initState();
     streamController = StreamController<List<Map<String, dynamic>>>.broadcast();
     _horizontalScrollController = ScrollController();
-    paymentsStreamDataSource(context, streamController, _searchQuery);
+    paymentsStreamDataSource(context, streamController, _searchQuery, widget.balanceAccID);
   }
 
   void _onSearchChanged(String query) {
     if (mounted) {
       setState(() {
         _searchQuery = query;
-        paymentsStreamDataSource(context, streamController, _searchQuery);
+        paymentsStreamDataSource(context, streamController, _searchQuery, widget.balanceAccID);
       });
     }
   }
@@ -67,33 +68,42 @@ class _PaymentsTableState extends State<PaymentsTable> {
 
           //dPrint('fetched data: $data');
 
-          return LayoutBuilder(
-            builder: (context, constraints) => Scrollbar(
-              controller: _horizontalScrollController,
-              thumbVisibility: true,
-              trackVisibility: true,
-              thickness: 10.0,
-              radius: const Radius.circular(8.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+          return SingleChildScrollView(
+            child: LayoutBuilder(
+              builder: (context, constraints) => Scrollbar(
                 controller: _horizontalScrollController,
-                physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: constraints.maxWidth,
-                  ),
-                  child: SizedBox(
-                    width: 1000,
-                    child: PaginatedDataTable(
-                      header: SearchTextformfields(
-                        onSearch: _onSearchChanged,
-                      ),
-                      source: PaymentsTableSource(context, data, widget.userId),
-                      showFirstLastButtons: true,
-                      rowsPerPage: 5,
-                      dataRowMinHeight: 40,
-                      dataRowMaxHeight: 86,
-                      columns: _buildDataColumns(), // Use helper function to build columns
+                thumbVisibility: true,
+                trackVisibility: true,
+                thickness: 10.0,
+                radius: const Radius.circular(8.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: _horizontalScrollController,
+                  physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth,
+                    ),
+                    child: SizedBox(
+                      width: 1000,
+                      child: data.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No payments yet',
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                            )
+                          : PaginatedDataTable(
+                              header: SearchTextformfields(
+                                onSearch: _onSearchChanged,
+                              ),
+                              source: PaymentsTableSource(context, data, widget.userId),
+                              showFirstLastButtons: true,
+                              rowsPerPage: 5,
+                              dataRowMinHeight: 40,
+                              dataRowMaxHeight: 86,
+                              columns: _buildDataColumns(), // Use helper function to build columns
+                            ),
                     ),
                   ),
                 ),
@@ -110,7 +120,7 @@ class _PaymentsTableState extends State<PaymentsTable> {
     const columnLabels = [
       'OR',
       'Date',
-      'Amount',
+      'Total Payment',
       'Actions',
     ]; // Column labels
 
@@ -119,7 +129,11 @@ class _PaymentsTableState extends State<PaymentsTable> {
       return DataColumn(
         label: Text(
           label,
-          style: const TextStyle(color: Colors.black, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     }).toList();

@@ -53,6 +53,30 @@ class BalanceAccount {
     );
   }
 
+  BalanceAccount copyWith({
+    String? id,
+    String? gradeLevel,
+    int? schoolYearStart,
+    String? parentID,
+    String? pupilID,
+    double? tuitionDiscount,
+    double? bookDiscount,
+    FeesModel? startingBalance,
+    FeesModel? remainingBalance,
+  }) {
+    return BalanceAccount(
+      id: id ?? this.id,
+      schoolYearStart: schoolYearStart ?? this.schoolYearStart,
+      startingBalance: startingBalance ?? this.startingBalance,
+      remainingBalance: remainingBalance ?? this.remainingBalance,
+      gradeLevel: gradeLevel ?? this.gradeLevel,
+      parentID: parentID ?? this.parentID,
+      pupilID: pupilID ?? this.pupilID,
+      tuitionDiscount: tuitionDiscount ?? this.tuitionDiscount,
+      bookDiscount: bookDiscount ?? this.bookDiscount,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

@@ -6,6 +6,7 @@ import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/states_management/statistics_model_data_controller.dart';
+import 'package:enrollease_web/states_management/user_context_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +16,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Client client = Client();
-  client.setEndpoint('https://cloud.appwrite.io/v1').setProject('674982d000220a32a166');
+  client
+      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setProject('674982d000220a32a166');
   runApp(const EnrollEaseApp());
 }
 
@@ -37,6 +40,9 @@ class EnrollEaseApp extends StatelessWidget {
           ChangeNotifierProvider(
             create: (context) => StatisticsModelDataController(),
           ),
+          ChangeNotifierProvider(
+            create: (context) => UserContextProvider(),
+          ),
         ],
         child: MaterialApp.router(
           title: 'EnrollEase',
@@ -55,24 +61,40 @@ final GoRouter _router = GoRouter(
   ),
   redirect: (context, state) {
     final currentPath = state.uri.path;
-    final navigationDrawerProvider = context.read<AccountDataController>();
-    final isLoggedIn = navigationDrawerProvider.isLoggedIn;
+    final accountDataController = context.read<AccountDataController>();
+    final isLoggedIn = accountDataController.isLoggedIn;
+
+    // If accessing any examples pages, allow without login
+    if (currentPath.startsWith('/examples')) {
+      return null;
+    }
+
+    // If the user is not logged in and trying to access a protected route
+    if (!isLoggedIn && currentPath != '/') {
+      // Save the intended destination to redirect back after login
+      if (currentPath != '/' && validPath(currentPath)) {
+        // Only save valid paths
+        accountDataController.setCurrentRoute(currentPath);
+      }
+      return '/'; // Redirect to login page
+    }
 
     // If the user is logged in
     if (isLoggedIn) {
-      final savedRoute = navigationDrawerProvider.currentRoute;
-      if (savedRoute != null && validPath(savedRoute)) {
-        return savedRoute; // Redirect to the saved route if it's valid
+      // If they're on the login page, redirect to main app
+      if (currentPath == '/') {
+        final savedRoute = accountDataController.currentRoute;
+        if (savedRoute != null && validPath(savedRoute) && savedRoute != '/') {
+          return savedRoute; // Redirect to the saved route if it's valid
+        }
+        return '/admin'; // Default route for logged in users
       }
-      return '/'; // Redirect to '/' if there's no valid saved route
+
+      // Otherwise let them continue to their requested page
+      return null;
     }
 
-    // If the user is not logged in and the current path is invalid
-    if (currentPath != '/' && !validPath(currentPath)) {
-      return '/'; // Redirect to '/' if the path is not valid
-    }
-
-    // No redirection if the path is valid
+    // Allow access to login page
     return null;
   },
   routes: [

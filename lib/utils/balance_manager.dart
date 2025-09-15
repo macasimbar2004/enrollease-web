@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/balance_model.dart';
+import 'package:enrollease_web/model/fees_model.dart';
 import 'package:enrollease_web/model/payment_model.dart';
 
 class BalanceManager {
@@ -99,6 +100,32 @@ class BalanceManager {
     // if (acc.id.isEmpty) throw ('Must provide parentsUserId!');
     try {
       await _firestore.collection('payments').doc().set(payment.toMap());
+      return null;
+    } catch (e) {
+      dPrint(e);
+      return e.toString();
+    }
+  }
+
+  Future<String?> minusRemainingBalance({
+    required Payment payment,
+  }) async {
+    if (payment.balanceAccID.isEmpty) throw ('Must provide balanceAccID!');
+    try {
+      final ref = _firestore.collection('balance_accounts').doc(payment.balanceAccID);
+      final balanceData = await ref.get();
+      final balance = BalanceAccount.fromMap(payment.balanceAccID, balanceData.data()!);
+      final newBalance = balance.copyWith(
+          remainingBalance: FeesModel(
+        entrance: balance.remainingBalance.entrance - (payment.amount?.entrance ?? 0),
+        tuition: balance.remainingBalance.tuition - (payment.amount?.tuition ?? 0),
+        misc: balance.remainingBalance.misc - (payment.amount?.misc ?? 0),
+        books: balance.remainingBalance.books - (payment.amount?.books ?? 0),
+        watchman: balance.remainingBalance.watchman - (payment.amount?.watchman ?? 0),
+        aircon: balance.remainingBalance.aircon - (payment.amount?.aircon ?? 0),
+        others: balance.remainingBalance.others - (payment.amount?.others ?? 0),
+      ));
+      ref.update(newBalance.toMap());
       return null;
     } catch (e) {
       dPrint(e);

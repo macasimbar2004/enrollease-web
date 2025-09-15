@@ -75,7 +75,8 @@ class _PupilsTableState extends State<NotificationsTable> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 controller: _horizontalScrollController,
-                physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+                physics:
+                    const ClampingScrollPhysics(), // Enables touch scrolling on mobile
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minWidth: constraints.maxWidth,
@@ -86,8 +87,9 @@ class _PupilsTableState extends State<NotificationsTable> {
                     child: data.isEmpty
                         ? const Center(
                             child: Text(
-                              'No notifications found.',
-                              style: TextStyle(color: Colors.white, fontSize: 18),
+                              'No logs found.',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
                             ),
                           )
                         : PaginatedDataTable(
@@ -99,7 +101,8 @@ class _PupilsTableState extends State<NotificationsTable> {
                             rowsPerPage: 5,
                             dataRowMinHeight: 40,
                             dataRowMaxHeight: 75,
-                            columns: _buildDataColumns(), // Use helper function to build columns
+                            columns:
+                                _buildDataColumns(), // Use helper function to build columns
                           ),
                   ),
                 ),
@@ -114,7 +117,7 @@ class _PupilsTableState extends State<NotificationsTable> {
   // Helper function to build data columns
   List<DataColumn> _buildDataColumns() {
     const columnLabels = [
-      'Title',
+      // 'Title',
       'Message',
       'Date',
       // 'Action',
@@ -125,7 +128,11 @@ class _PupilsTableState extends State<NotificationsTable> {
       return DataColumn(
         label: Text(
           label,
-          style: const TextStyle(color: Colors.black, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     }).toList();

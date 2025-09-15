@@ -1,83 +1,149 @@
 import 'package:enrollease_web/data/side_menu_data.dart';
+import 'package:enrollease_web/model/menu_model.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
+import 'package:enrollease_web/states_management/user_context_provider.dart';
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/utils/logos.dart';
-import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+class SideMenuEntry {
+  final String title;
+  final IconData icon;
+  final String route;
+
+  const SideMenuEntry({
+    required this.title,
+    required this.icon,
+    required this.route,
+  });
+}
 
 class SideMenuWidget extends StatelessWidget {
   const SideMenuWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Initialize SideMenuData to get menu items
-    final data = SideMenuData();
-    // Get the currently selected index from the provider
     final providerState = context.watch<SideMenuIndexController>();
+    final userContext = context.watch<UserContextProvider>();
+    final isMenuVisible = providerState.isMenuVisible;
+
+    // Get accessible menu items based on user roles
+    final accessibleMenuItems =
+        SideMenuData.getAccessibleMenuItems(userContext.userRoles);
+
+    // Debug: Print side menu information
+    print('DEBUG: Side Menu Widget:');
+    print('  User Roles: ${userContext.userRoles}');
+    print('  Accessible Menu Items Count: ${accessibleMenuItems.length}');
+    print(
+        '  Accessible Menu Items: ${accessibleMenuItems.map((item) => item.title).toList()}');
 
     return Drawer(
       backgroundColor: Colors.white,
+      elevation: 0,
       child: Column(
         children: [
-          Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: 15, bottom: 15),
-                color: CustomColors.contentColor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (providerState.isMenuVisible)
-                      FittedBox(
-                        child: Container(
-                          padding: const EdgeInsets.only(top: 10, bottom: 10),
-                          height: 130,
-                          width: 130,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(70),
-                          ),
-                          child: Image.asset(
-                            CustomLogos.adventistLogo,
-                          ),
-                        ),
-                      ),
-                    if (!providerState.isMenuVisible)
-                      const SizedBox(
-                        width: 40,
-                        height: 50,
-                      ),
-                  ],
+          // Header with dynamic sizing
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final headerHeight = isMenuVisible ? 120.0 : 60.0;
+              final logoSize = isMenuVisible ? 80.0 : 40.0;
+
+              return Container(
+                padding: EdgeInsets.only(
+                  top: headerHeight * 0.2,
+                  bottom: headerHeight * 0.2,
                 ),
-              ),
-              if (!ResponsiveWidget.isSmallScreen(context))
-                Positioned(
-                  bottom: 0,
-                  top: 0,
-                  right: 0,
-                  child: IconButton(
-                    onPressed: providerState.isButtonDisabled
-                        ? null // Disable the button if true
-                        : () => providerState.toggleMenuVisibility(),
-                    icon: const Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                    ),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      CustomColors.contentColor,
+                      CustomColors.contentColor.withValues(alpha: 0.8),
+                    ],
                   ),
                 ),
-            ],
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Decorative circles with dynamic sizing
+                    Positioned(
+                      right: -constraints.maxWidth * 0.1,
+                      top: -constraints.maxWidth * 0.1,
+                      child: Container(
+                        width: constraints.maxWidth * 0.2,
+                        height: constraints.maxWidth * 0.2,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: -constraints.maxWidth * 0.05,
+                      bottom: -constraints.maxWidth * 0.05,
+                      child: Container(
+                        width: constraints.maxWidth * 0.1,
+                        height: constraints.maxWidth * 0.1,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                    // Logo with dynamic sizing
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: EdgeInsets.all(logoSize * 0.15),
+                      height: logoSize,
+                      width: logoSize,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(logoSize * 0.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Image.asset(
+                          CustomLogos.adventistLogo,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 16),
+          // Menu items with dynamic sizing
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-              child: ListView.builder(
-                itemBuilder: (context, index) => buildMenuEntry(data, index, providerState.selectedIndex),
-                itemCount: data.menu.length,
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMenuVisible ? constraints.maxWidth * 0.05 : 0,
+                  ),
+                  child: ListView.builder(
+                    itemBuilder: (context, index) => buildMenuEntry(
+                        accessibleMenuItems,
+                        index,
+                        providerState.selectedIndex,
+                        constraints,
+                        userContext),
+                    itemCount: accessibleMenuItems.length,
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -85,62 +151,103 @@ class SideMenuWidget extends StatelessWidget {
     );
   }
 
-  // Method to build each menu entry with animation
-  Widget buildMenuEntry(SideMenuData data, int index, int selectedIndex) {
-    // Check if the current entry is selected
-    final isSelected = selectedIndex == index;
+  Widget buildMenuEntry(
+      List<MenuModel> accessibleMenuItems,
+      int index,
+      int selectedIndex,
+      BoxConstraints constraints,
+      UserContextProvider userContext) {
+    // Map the accessible menu index to the full menu index for proper highlighting
+    final fullMenuIndex = SideMenuData.menu.indexWhere(
+      (item) => item.title == accessibleMenuItems[index].title,
+    );
+    final isSelected = fullMenuIndex != -1 && selectedIndex == fullMenuIndex;
 
     return Consumer<SideMenuIndexController>(
-      builder: (context, provider, _) => Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(6)),
-          color: isSelected ? Colors.grey : Colors.transparent,
-        ),
-        child: InkWell(
-          onTap: () {
-            provider.setSelectedIndex(index);
-            provider.setCurrentSelectedIndex(index);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            margin: isSelected
-                ? const EdgeInsets.only(left: 10.0) // Move right when selected
-                : const EdgeInsets.only(left: 0.0), // Default position when not selected
-            child: AnimatedScale(
-              scale: isSelected ? 1.05 : 1.0, // Slightly scale up when selected
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // Icon for the menu item
-                    Padding(
-                      padding: const EdgeInsets.only(right: 20, top: 12, bottom: 12),
-                      child: Icon(
-                        data.menu[index].icon,
-                        color: Colors.black,
-                      ),
+      builder: (context, provider, _) {
+        final bool showText = provider.isMenuVisible;
+        final iconSize = showText ? 32.0 : 28.0;
+        final padding = showText ? constraints.maxWidth * 0.1 : 0.0;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: EdgeInsets.symmetric(vertical: constraints.maxHeight * 0.008),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: isSelected
+                ? CustomColors.contentColor.withValues(alpha: 0.1)
+                : Colors.transparent,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: CustomColors.contentColor.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                    // Title of the menu item
-                    Text(
-                      data.menu[index].title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                        overflow: TextOverflow.clip,
-                      ),
-                      overflow: TextOverflow.clip,
-                    ),
-                  ],
+                  ]
+                : null,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                // Use the already calculated fullMenuIndex for navigation
+                if (fullMenuIndex != -1) {
+                  provider.setSelectedIndex(fullMenuIndex);
+                  provider.setCurrentSelectedIndex(fullMenuIndex);
+                }
+                provider.hideMenuOnNavigation();
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(
+                  vertical: constraints.maxHeight * 0.02,
+                  horizontal: padding,
                 ),
+                child: !showText
+                    ? Center(
+                        child: Icon(
+                          accessibleMenuItems[index].icon,
+                          color: isSelected
+                              ? CustomColors.contentColor
+                              : Colors.black54,
+                          size: iconSize,
+                        ),
+                      )
+                    : Row(
+                        children: [
+                          Icon(
+                            accessibleMenuItems[index].icon,
+                            color: isSelected
+                                ? CustomColors.contentColor
+                                : Colors.black54,
+                            size: iconSize,
+                          ),
+                          SizedBox(width: constraints.maxWidth * 0.04),
+                          Expanded(
+                            child: Text(
+                              accessibleMenuItems[index].title,
+                              style: TextStyle(
+                                fontSize: constraints.maxWidth * 0.045,
+                                color: isSelected
+                                    ? CustomColors.contentColor
+                                    : Colors.black87,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

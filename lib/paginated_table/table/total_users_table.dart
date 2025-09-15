@@ -76,7 +76,8 @@ class _NewUsersTableState extends State<NewUsersTable> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 controller: _horizontalScrollController,
-                physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+                physics:
+                    const ClampingScrollPhysics(), // Enables touch scrolling on mobile
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minWidth: constraints.maxWidth,
@@ -92,7 +93,8 @@ class _NewUsersTableState extends State<NewUsersTable> {
                       rowsPerPage: 5,
                       dataRowMinHeight: 40,
                       dataRowMaxHeight: 75,
-                      columns: _buildDataColumns(), // Use helper function to build columns
+                      columns:
+                          _buildDataColumns(), // Use helper function to build columns
                     ),
                   ),
                 ),
@@ -113,7 +115,11 @@ class _NewUsersTableState extends State<NewUsersTable> {
       return DataColumn(
         label: Text(
           label,
-          style: const TextStyle(color: Colors.black, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     }).toList();

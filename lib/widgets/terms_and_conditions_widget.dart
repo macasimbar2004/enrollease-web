@@ -9,19 +9,35 @@ class TermsAndConditionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog.fullscreen(
+    return Dialog(
       child: Column(
+        // mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: Markdown(data: termsAndConditions)),
-          CustomBtn(
-            vertical: 10,
-            colorBg: Colors.blue,
-            colorTxt: Colors.white,
-            txtSize: 16,
-            onTap: () {
-              Nav.pop(context);
-            },
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              child: Markdown(data: termsAndConditions),
+            ),
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomBtn(
+                vertical: 10,
+                horizontal: 50,
+                colorBg: Colors.blue,
+                colorTxt: Colors.white,
+                txtSize: 16,
+                btnTxt: 'Ok',
+                onTap: () {
+                  Nav.pop(context);
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );

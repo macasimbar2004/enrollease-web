@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/model/fetching_registrar_model.dart';
 import 'package:flutter/foundation.dart';
@@ -16,8 +18,74 @@ class AccountDataController extends ChangeNotifier {
   String? _currentRoute;
   String? get currentRoute => _currentRoute;
 
+  // Session management variables
+  DateTime? _lastActivityTime;
+  Timer? _sessionTimer;
+  static const int sessionTimeoutMinutes = 30; // Session timeout in minutes
+
   AccountDataController() {
     _loadUserData();
+    _startSessionTimer();
+  }
+
+  // Start the session timer to check for timeouts
+  void _startSessionTimer() {
+    _sessionTimer?.cancel();
+    _sessionTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      _checkSessionTimeout();
+    });
+  }
+
+  // Update last activity time (call this when user interacts with the app)
+  void updateLastActivityTime() {
+    _lastActivityTime = DateTime.now();
+    _saveLastActivityTime();
+  }
+
+  // Save last activity time to persistent storage
+  Future<void> _saveLastActivityTime() async {
+    if (_lastActivityTime != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          'lastActivityTime', _lastActivityTime!.toIso8601String());
+    }
+  }
+
+  // Load last activity time from persistent storage
+  Future<void> _loadLastActivityTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final timeString = prefs.getString('lastActivityTime');
+    if (timeString != null) {
+      _lastActivityTime = DateTime.parse(timeString);
+    }
+  }
+
+  // Check if session has timed out
+  void _checkSessionTimeout() {
+    if (!_isLoggedIn || _lastActivityTime == null) return;
+
+    final now = DateTime.now();
+    final difference = now.difference(_lastActivityTime!);
+
+    if (difference.inMinutes >= sessionTimeoutMinutes) {
+      dPrint(
+          'Session timeout: User has been inactive for ${difference.inMinutes} minutes');
+      // Log out the user
+      setLoggedIn(false);
+
+      // Navigate to login screen if possible
+      // Note: We can't directly use navigation here since this is a model,
+      // but we'll set a flag to be checked by a listener in the UI
+      _isSessionTimedOut = true;
+      notifyListeners();
+    }
+  }
+
+  bool _isSessionTimedOut = false;
+  bool get isSessionTimedOut {
+    final wasTimedOut = _isSessionTimedOut;
+    _isSessionTimedOut = false; // Reset after reading
+    return wasTimedOut;
   }
 
   // Load user data from SharedPreferences
@@ -27,6 +95,7 @@ class AccountDataController extends ChangeNotifier {
     _currentRoute = prefs.getString('currentRoute');
 
     _currentRegistrar = FetchingRegistrarModel(
+      profilePicData: prefs.getString('profilePicData') ?? '',
       id: prefs.getString('userId') ?? '',
       lastName: prefs.getString('lastName') ?? '',
       firstName: prefs.getString('firstName') ?? '',
@@ -41,9 +110,27 @@ class AccountDataController extends ChangeNotifier {
       nameExtension: prefs.getString('nameExtension'),
       password: prefs.getString('currentPassword') ?? '',
       jobLevel: prefs.getString('userRole') ?? '',
+      // Load RBAC fields
+      userType: prefs.getString('userType'),
+      roles: prefs.getStringList('userRoles'),
+      status: prefs.getString('userStatus'),
+      gradeLevel: prefs.getString('userGradeLevel'),
+      profilePicLink: prefs.getString('profilePicLink'),
     );
 
     _isLoggedIn = _currentRegistrar!.id.isNotEmpty;
+
+    // If user is logged in, load and update the last activity time
+    if (_isLoggedIn) {
+      await _loadLastActivityTime();
+      // If there's no last activity time or it's very old, set it to now
+      if (_lastActivityTime == null ||
+          DateTime.now().difference(_lastActivityTime!).inMinutes >
+              sessionTimeoutMinutes) {
+        updateLastActivityTime();
+      }
+    }
+
     notifyListeners();
   }
 
@@ -65,6 +152,7 @@ class AccountDataController extends ChangeNotifier {
 
     // Saving registrar fields into SharedPreferences
     await prefs.setString('userId', registrar.id);
+    await prefs.setString('profilePicData', registrar.profilePicData);
     await prefs.setString('lastName', registrar.lastName);
     await prefs.setString('firstName', registrar.firstName);
     await prefs.setString('middleName', registrar.middleName);
@@ -75,12 +163,34 @@ class AccountDataController extends ChangeNotifier {
     await prefs.setString('currentUserDivision', registrar.address);
     await prefs.setString('currentEmail', registrar.email);
     await prefs.setString('remarks', registrar.remarks);
-    await prefs.setString('nameExtension', registrar.nameExtension ?? ''); // Handle nullable name extension
+    await prefs.setString('nameExtension',
+        registrar.nameExtension ?? ''); // Handle nullable name extension
     await prefs.setString('currentPassword', registrar.password);
-    await prefs.setString('userRole', registrar.jobLevel); // Handle nullable jobLevel for role
+    await prefs.setString(
+        'userRole', registrar.jobLevel); // Handle nullable jobLevel for role
+    
+    // Save RBAC fields
+    if (registrar.userType != null) {
+      await prefs.setString('userType', registrar.userType!);
+    }
+    if (registrar.roles != null) {
+      await prefs.setStringList('userRoles', registrar.roles!);
+    }
+    if (registrar.status != null) {
+      await prefs.setString('userStatus', registrar.status!);
+    }
+    if (registrar.gradeLevel != null) {
+      await prefs.setString('userGradeLevel', registrar.gradeLevel!);
+    }
+    if (registrar.profilePicLink != null) {
+      await prefs.setString('profilePicLink', registrar.profilePicLink!);
+    }
 
     // Set the login state based on the registrar's identification (or other unique identifier)
     _isLoggedIn = registrar.id.isNotEmpty;
+
+    // Update the last activity time since the user just logged in
+    updateLastActivityTime();
 
     // Reload the user data after saving
     await _loadUserData();
@@ -101,23 +211,29 @@ class AccountDataController extends ChangeNotifier {
       });
 
       // Recreate the model with the updated data, but retain the original values for other fields
-      _currentRegistrar = FetchingRegistrarModel(
-        id: currentData['userId'] ?? _currentRegistrar!.id,
-        lastName: currentData['lastName'] ?? _currentRegistrar!.lastName,
-        firstName: currentData['firstName'] ?? _currentRegistrar!.firstName,
-        middleName: currentData['middleName'] ?? _currentRegistrar!.middleName,
-        dateOfBirth: currentData['dateOfBirth'] ?? _currentRegistrar!.dateOfBirth,
-        age: currentData['age'] ?? _currentRegistrar!.age,
-        contact: currentData['contact'] ?? _currentRegistrar!.contact,
-        placeOfBirth: currentData['placeOfBirth'] ?? _currentRegistrar!.placeOfBirth,
-        address: currentData['currentUserDivision'] ?? _currentRegistrar!.address,
-        email: currentData['currentEmail'] ?? _currentRegistrar!.email,
-        remarks: currentData['remarks'] ?? _currentRegistrar!.remarks,
-        nameExtension: currentData['nameExtension'] ?? _currentRegistrar!.nameExtension,
-        password: currentData['currentPassword'] ?? _currentRegistrar!.password,
-        jobLevel: currentData['userRole'] ?? _currentRegistrar!.jobLevel,
+      _currentRegistrar = _currentRegistrar?.copyWith(
+        id: currentData['userId'],
+        lastName: currentData['lastName'],
+        firstName: currentData['firstName'],
+        middleName: currentData['middleName'],
+        dateOfBirth: currentData['dateOfBirth'],
+        age: currentData['age'],
+        contact: currentData['contact'],
+        placeOfBirth: currentData['placeOfBirth'],
+        address: currentData['currentUserDivision'],
+        email: currentData['currentEmail'],
+        remarks: currentData['remarks'],
+        nameExtension: currentData['nameExtension'],
+        password: currentData['currentPassword'],
+        jobLevel: currentData['userRole'],
+        // Preserve RBAC fields
+        userType: _currentRegistrar!.userType,
+        roles: _currentRegistrar!.roles,
+        status: _currentRegistrar!.status,
+        gradeLevel: _currentRegistrar!.gradeLevel,
+        profilePicLink: _currentRegistrar!.profilePicLink,
       );
-
+      setRegistrarData(registrar: _currentRegistrar);
       dPrint('Updated data: ${_currentRegistrar!.toMap()}');
       notifyListeners(); // Notify listeners to refresh UI
     }
@@ -133,8 +249,13 @@ class AccountDataController extends ChangeNotifier {
   // Set the login state
   Future<void> setLoggedIn(bool loggedIn) async {
     _isLoggedIn = loggedIn;
-    if (!loggedIn) {
+    if (loggedIn) {
+      // Update activity time when logging in
+      updateLastActivityTime();
+    } else {
+      _lastActivityTime = null;
       final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('lastActivityTime');
       await prefs.remove('userId');
       await prefs.remove('lastName');
       await prefs.remove('firstName');
@@ -149,6 +270,13 @@ class AccountDataController extends ChangeNotifier {
       await prefs.remove('nameExtension');
       await prefs.remove('currentPassword');
       await prefs.remove('userRole');
+      
+      // Clear RBAC fields
+      await prefs.remove('userType');
+      await prefs.remove('userRoles');
+      await prefs.remove('userStatus');
+      await prefs.remove('userGradeLevel');
+      await prefs.remove('profilePicLink');
     }
     notifyListeners();
   }
@@ -164,5 +292,16 @@ class AccountDataController extends ChangeNotifier {
     _currentRegistrar = null;
     _isLoggedIn = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _sessionTimer?.cancel();
+    super.dispose();
+  }
+
+  // Public method to reload user data
+  Future<void> reloadUserData() async {
+    await _loadUserData();
   }
 }

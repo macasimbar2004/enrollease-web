@@ -30,6 +30,26 @@ class _SignInState extends State<SignIn> {
   bool isLoading = false;
   String providerJobLevel = '';
 
+  @override
+  void initState() {
+    super.initState();
+    // Check if there's already a user session on startup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final accountController =
+          Provider.of<AccountDataController>(context, listen: false);
+      if (accountController.isLoggedIn) {
+        // User is already logged in, navigate to main screen
+        final uri = Uri(
+          path: '/admin',
+          queryParameters: {
+            'userRole': accountController.currentRegistrar?.jobLevel ?? '',
+          },
+        );
+        context.go(uri.toString());
+      }
+    });
+  }
+
   Future<void> handleSignIn(BuildContext context) async {
     if (formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -38,18 +58,36 @@ class _SignInState extends State<SignIn> {
       showLoadingDialog(context, 'Signing in...');
       final identification = userTextController.text.trim();
       final password = passwordTextController.text.trim();
-      bool signInSuccessful = await authProvider.signIn(context, identification, password);
+      bool signInSuccessful =
+          await authProvider.signIn(context, identification, password);
       await Future.delayed(const Duration(milliseconds: 300));
-      setState(() {
-        isLoading = false;
-      });
-      if (signInSuccessful) {
-        // If sign-in is successful, set the registrar in the provider
-        if (context.mounted) {
-          providerJobLevel = Provider.of<AccountDataController>(context, listen: false).currentRegistrar!.jobLevel;
-        }
+      if (!context.mounted) return;
 
-        // Navigate to the MainScreen on successful sign-in
+      // Handle successful sign in
+      if (signInSuccessful) {
+        final accountController =
+            Provider.of<AccountDataController>(context, listen: false);
+        final registrar = accountController.currentRegistrar!;
+
+        // Update last activity time
+        accountController.updateLastActivityTime();
+
+        // Add notification
+        await FirebaseAuthProvider().addNotification(
+          content:
+              'Registrar ${registrar.firstName} ${registrar.lastName} has logged in.\nRegistration Number: $identification',
+          type: 'registrar',
+          uid: '',
+          targetType: 'registrar',
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        if (context.mounted) {
+          providerJobLevel = registrar.jobLevel;
+        }
 
         // Construct the URI for navigation with query parameters
         final uri = Uri(
@@ -60,7 +98,7 @@ class _SignInState extends State<SignIn> {
         );
 
         if (context.mounted) {
-          await Provider.of<AccountDataController>(context, listen: false).setCurrentRoute(uri.path);
+          await accountController.setCurrentRoute(uri.path);
         }
 
         if (context.mounted) {
@@ -70,8 +108,12 @@ class _SignInState extends State<SignIn> {
       } else {
         if (context.mounted) {
           Navigator.pop(context);
-          DelightfulToast.showError(context, 'Error', 'Invalid identification or password.');
+          DelightfulToast.showError(
+              context, 'Error', 'Invalid identification or password.');
         }
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -90,95 +132,135 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
       backgroundColor: CustomColors.signInColor,
       body: SafeArea(
-          bottom: false,
-          child: Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: SizedBox(
-                  height: 600,
-                  width: 600,
-                  child: CustomCard(
-                    color: CustomColors.appBarColor,
-                    child: Form(
-                      key: formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                radius: 120,
+        bottom: false,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 450),
+                child: CustomCard(
+                  elevation: 4.0,
+                  color: CustomColors.appBarColor,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Logo
+                        Align(
+                          alignment: Alignment.center,
+                          child: CircleAvatar(
+                              backgroundColor: Colors.white.withValues(alpha: 0.9),
+                              radius: 80,
+                              child: Padding(
+                                padding: const EdgeInsets.all(15.0),
                                 child: Image.asset(
                                   CustomLogos.enrolleaseLogo,
-                                )),
-                          ),
-                          RichText(
+                                  fit: BoxFit.contain,
+                                ),
+                              )),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Welcome text
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: RichText(
                             text: TextSpan(
                               style: CustomTextStyles.lusitanaFont(
-                                fontSize: 24,
+                                fontSize: 26,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ), // Default style for the text
+                                color: Colors.white,
+                              ),
                               children: const <TextSpan>[
-                                TextSpan(text: 'WELCOME BACK\n', style: TextStyle(fontWeight: FontWeight.bold)), // Bold text
-                                TextSpan(text: 'PLEASE LOGIN TO YOUR ACCOUNT', style: TextStyle(fontWeight: FontWeight.bold)),
-                                // Bold text
+                                TextSpan(
+                                    text: 'WELCOME BACK\n',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(
+                                    text: 'PLEASE LOGIN TO YOUR ACCOUNT',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                               ],
                             ),
-                            textAlign: TextAlign.center, // Center the text
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: CustomTextFormField(
-                              toShowPassword: false,
-                              toShowIcon: false,
-                              toShowPrefixIcon: true,
-                              controller: userTextController,
-                              hintText: 'Enter ID#',
-                              iconData: CupertinoIcons.person_crop_circle,
-                              toFillColor: true,
-                              fillColor: Colors.white,
+                        ),
+                        const SizedBox(height: 30),
+
+                        // User ID field
+                        CustomTextFormField(
+                          toShowPassword: false,
+                          toShowIcon: false,
+                          toShowPrefixIcon: true,
+                          controller: userTextController,
+                          hintText: 'Enter ID#',
+                          iconData: CupertinoIcons.person_crop_circle,
+                          toFillColor: true,
+                          fillColor: Colors.white,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your ID';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Password field
+                        CustomTextFormField(
+                          toShowPassword: toShow,
+                          toShowIcon: true,
+                          toShowPrefixIcon: true,
+                          controller: passwordTextController,
+                          hintText: 'Enter Password',
+                          iconData: Icons.lock,
+                          toFillColor: true,
+                          fillColor: Colors.white,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 30),
+
+                        // Login button
+                        SizedBox(
+                          width: 220,
+                          child: CustomBtn(
+                            onTap: isLoading
+                                ? null
+                                : () async => await handleSignIn(context),
+                            vertical: 12,
+                            height: 48,
+                            colorBg: CustomColors.contentColor,
+                            colorTxt: Colors.white,
+                            btnTxt: 'LOGIN',
+                            btnFontWeight: FontWeight.w600,
+                            textStyle: CustomTextStyles.lusitanaFont(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
+                            txtSize: null,
                           ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: CustomTextFormField(
-                              toShowPassword: toShow,
-                              toShowIcon: true,
-                              toShowPrefixIcon: true,
-                              controller: passwordTextController,
-                              hintText: 'Enter Password',
-                              iconData: Icons.lock,
-                              toFillColor: true,
-                              fillColor: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          SizedBox(
-                            width: 200,
-                            child: CustomBtn(onTap: isLoading ? null : () async => await handleSignIn(context), vertical: 10, colorBg: CustomColors.contentColor, colorTxt: Colors.white, btnTxt: 'LOGIN', btnFontWeight: FontWeight.normal, textStyle: CustomTextStyles.lusitanaFont(fontSize: 16, color: Colors.white, fontWeight: FontWeight.normal), txtSize: null),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }

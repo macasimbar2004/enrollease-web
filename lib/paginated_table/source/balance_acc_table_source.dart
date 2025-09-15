@@ -3,15 +3,17 @@ import 'package:enrollease_web/model/enrollment_form_model.dart';
 import 'package:enrollease_web/model/fees_model.dart';
 import 'package:enrollease_web/model/grade_enum.dart';
 import 'package:enrollease_web/model/user_model.dart';
-import 'package:enrollease_web/pages/payments.dart';
+import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
-import 'package:enrollease_web/utils/nav.dart';
+import 'package:enrollease_web/utils/table_formatting.dart';
 import 'package:enrollease_web/widgets/custom_add_dialog.dart';
 import 'package:enrollease_web/widgets/custom_confirmation_dialog.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
 import 'package:enrollease_web/widgets/custom_textformfields.dart';
 import 'package:enrollease_web/widgets/custom_toast.dart';
+import 'package:enrollease_web/pages/payments.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // Data source for new users table
 class BalanceAccTableSource extends DataTableSource {
@@ -55,33 +57,57 @@ class BalanceAccTableSource extends DataTableSource {
 
     return fields.map((field) {
       String cellValue = '';
-      switch (field) {
-        case 'parent':
-          cellValue = (rowData[field] as UserModel).userName;
-          break;
-        case 'pupil':
-          cellValue = (rowData[field] as EnrollmentFormModel).firstName;
-          break;
-        case 'remainingBalance':
-          cellValue = FeesModel.fromMap(rowData[field]).totalFormatted();
-          break;
-        case 'enrollingGrade':
-          cellValue = (rowData['pupil'] as EnrollmentFormModel).enrollingGrade.formalLongString();
-          break;
-        default:
-          cellValue = rowData[field].toString();
+      try {
+        switch (field) {
+          case 'parent':
+            cellValue = (rowData[field] as UserModel?)?.userName ?? '--';
+            break;
+          case 'pupil':
+            cellValue =
+                (rowData[field] as EnrollmentFormModel?)?.firstName ?? '--';
+            break;
+          case 'remainingBalance':
+            if (rowData[field] != null) {
+              final feesModel = FeesModel.fromMap(rowData[field]);
+              cellValue =
+                  feesModel.total() == 0 ? 'Paid' : feesModel.totalFormatted();
+            } else {
+              cellValue = '--';
+            }
+            break;
+          case 'enrollingGrade':
+            cellValue = (rowData['pupil'] as EnrollmentFormModel?)
+                    ?.enrollingGrade
+                    .formalLongString() ??
+                '--';
+            break;
+          default:
+            cellValue = rowData[field]?.toString() ?? '--';
+        }
+      } catch (e) {
+        cellValue = '--';
       }
 
       if (field == 'action') {
-        return DataCell(Column(
-          children: [
-            ElevatedButton(
-              onPressed: () => Nav.push(context, PaymentsPage(userId: userId, data: rowData)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-              child: const Text('View payments', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ));
+        return DataCell(
+          ElevatedButton(
+            onPressed: () {
+              // Set the data in the controller for the payments page to access
+              context.read<SideMenuIndexController>().setData(rowData);
+              // Navigate directly to payments page
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PaymentsPage(
+                    userId: userId,
+                    userName: (rowData['parent'] as UserModel?)?.userName,
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            child: const Text('View', style: TextStyle(color: Colors.white)),
+          ),
+        );
       }
 
       return DataCell(
@@ -114,8 +140,11 @@ class BalanceAccTableSource extends DataTableSource {
               runSpacing: 10,
               spacing: 10,
               children: [
-                const Text('Parent\'s\\Guardian\'s Name: ', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('${rowData['parentsOrGuardianName']}', style: const TextStyle(fontSize: 20, color: Colors.black)),
+                const Text('Parent\'s\\Guardian\'s Name: ',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text('${rowData['parentsOrGuardianName']}',
+                    style: const TextStyle(fontSize: 20, color: Colors.black)),
               ],
             ),
           ),
@@ -125,7 +154,8 @@ class BalanceAccTableSource extends DataTableSource {
           ),
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text('PERSONAL INFORMATION:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            child: Text('PERSONAL INFORMATION:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 20),
           buildTextField(
@@ -137,11 +167,14 @@ class BalanceAccTableSource extends DataTableSource {
             children: [
               Expanded(
                 flex: 3,
-                child: buildTextField(labelText: 'Date of Birth (MM/DD/YYYY)', initialValue: rowData['dateOfBirth']),
+                child: buildTextField(
+                    labelText: 'Date of Birth (MM/DD/YYYY)',
+                    initialValue: rowData['dateOfBirth']),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: buildTextField(labelText: 'Age', initialValue: rowData['age']),
+                child: buildTextField(
+                    labelText: 'Age', initialValue: rowData['age']),
               ),
             ],
           ),
@@ -149,7 +182,8 @@ class BalanceAccTableSource extends DataTableSource {
           Row(
             children: [
               _buildText('Gender: '),
-              _buildText(rowData['gender']),
+              _buildText(
+                  TableFormatting.formatGender(rowData['gender']?.toString())),
             ],
           ),
           const SizedBox(height: 20),
@@ -196,7 +230,8 @@ class BalanceAccTableSource extends DataTableSource {
               Expanded(
                 child: buildTextField(
                   labelText: 'Phone Number',
-                  initialValue: rowData['phoneNumber'],
+                  initialValue: TableFormatting.formatPhoneNumber(
+                      rowData['phoneNumber']?.toString()),
                 ),
               ),
               const SizedBox(
@@ -219,19 +254,28 @@ class BalanceAccTableSource extends DataTableSource {
           ),
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text('ACADEMIC INFORMATION:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            child: Text('ACADEMIC INFORMATION:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 20),
-          buildTextField(labelText: 'Previous School', initialValue: rowData['previousSchool']),
+          buildTextField(
+              labelText: 'Previous School',
+              initialValue: rowData['previousSchool']),
           const SizedBox(height: 20),
-          Align(alignment: Alignment.centerLeft, child: _buildText('Attach Files: ')),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: _buildText('Attach Files: ')),
           const SizedBox(height: 10),
           Container(
             height: 250,
-            decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.black), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.black),
+                borderRadius: BorderRadius.circular(10)),
           ),
           const SizedBox(height: 20),
-          buildTextField(labelText: 'Additional Info', initialValue: rowData['additionalInfo']),
+          buildTextField(
+              labelText: 'Additional Info',
+              initialValue: rowData['additionalInfo']),
         ],
       ),
       actionButtons: [
@@ -239,7 +283,8 @@ class BalanceAccTableSource extends DataTableSource {
           visible: fromPendingPage,
           child: ElevatedButton(
               onPressed: () async {
-                await handleApprovingForms(context, rowData, 'Approval', 'Approve');
+                await handleApprovingForms(
+                    context, rowData, 'Approval', 'Approve');
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               child: const Text(
@@ -254,7 +299,8 @@ class BalanceAccTableSource extends DataTableSource {
           visible: fromPendingPage,
           child: ElevatedButton(
               onPressed: () async {
-                await handleApprovingForms(context, rowData, 'Disapproval', 'Disapprove');
+                await handleApprovingForms(
+                    context, rowData, 'Disapproval', 'Disapprove');
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text(
@@ -266,12 +312,17 @@ class BalanceAccTableSource extends DataTableSource {
     );
   }
 
-  Future<void> handleApprovingForms(BuildContext context, Map<String, dynamic> rowData, String confirmText, String leftButtonText) async {
+  Future<void> handleApprovingForms(
+      BuildContext context,
+      Map<String, dynamic> rowData,
+      String confirmText,
+      String leftButtonText) async {
     try {
       final confirm = await showConfirmationDialog(
         context: context,
         title: 'Confirm $confirmText',
-        message: 'Are you sure you want to ${leftButtonText.toLowerCase()} the record for ${rowData['regNo']}?',
+        message:
+            'Are you sure you want to ${leftButtonText.toLowerCase()} the record for ${rowData['regNo']}?',
         confirmText: leftButtonText,
         cancelText: 'Cancel',
       );
@@ -287,11 +338,13 @@ class BalanceAccTableSource extends DataTableSource {
             type: 'user',
             uid: rowData['parentsUserId']);
 
-        await firebaseAuthProvider.updateStatus(rowData['regNo'], '${leftButtonText.toLowerCase()}d');
+        await firebaseAuthProvider.updateStatus(
+            rowData['regNo'], '${leftButtonText.toLowerCase()}d');
         if (context.mounted) {
           Navigator.pop(context); // Close the loading dialog
           Navigator.pop(context); // Close the current dialog or page
-          DelightfulToast.showSuccess(context, 'Success', 'Enrollment form ${leftButtonText}d.');
+          DelightfulToast.showSuccess(
+              context, 'Success', 'Enrollment form ${leftButtonText}d.');
         }
       } else {
         dPrint('Approval canceled by user.');
@@ -304,7 +357,8 @@ class BalanceAccTableSource extends DataTableSource {
   Widget _buildText(String text) {
     return Text(
       text,
-      style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+      style: const TextStyle(
+          color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
     );
   }
 }

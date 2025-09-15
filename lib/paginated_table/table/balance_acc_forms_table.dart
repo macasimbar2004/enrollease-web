@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/paginated_table/data_source_stream/balance_acc_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/balance_acc_table_source.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
@@ -10,7 +9,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 class BalanceAccountsTable extends StatefulWidget {
   final DateTimeRange range;
   final String userId;
-  const BalanceAccountsTable({required this.range, required this.userId, super.key});
+  const BalanceAccountsTable(
+      {required this.range, required this.userId, super.key});
 
   @override
   State<BalanceAccountsTable> createState() => _BalanceAccountsTableState();
@@ -33,6 +33,21 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
       _searchQuery,
       widget.range,
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant BalanceAccountsTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.range != widget.range) {
+      setState(() {
+        balanceAccStreamSource(
+          context,
+          streamController,
+          _searchQuery,
+          widget.range,
+        );
+      });
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -69,7 +84,8 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: streamController.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || snapshot.data == null && !snapshot.hasError) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data == null && !snapshot.hasError) {
           return const Center(
             child: SpinKitFadingCircle(
               color: Colors.white,
@@ -81,8 +97,6 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
         } else {
           final data = snapshot.data ?? [];
 
-          dPrint('fetched data: $data');
-
           return LayoutBuilder(
             builder: (context, constraints) => Scrollbar(
               controller: _horizontalScrollController,
@@ -93,23 +107,37 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 controller: _horizontalScrollController,
-                physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+                physics: const ClampingScrollPhysics(),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minWidth: constraints.maxWidth,
                   ),
                   child: SizedBox(
-                    width: 1000,
-                    child: PaginatedDataTable(
-                      header: SearchTextformfields(
-                        onSearch: _onSearchChanged,
+                    width: 1200,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        dataTableTheme: const DataTableThemeData(
+                          columnSpacing: 20,
+                          horizontalMargin: 20,
+                          headingRowHeight: 56,
+                          dataRowMinHeight: 48,
+                          dataRowMaxHeight: 75,
+                        ),
                       ),
-                      source: BalanceAccTableSource(context, data, loading, widget.userId),
-                      showFirstLastButtons: true,
-                      rowsPerPage: 5,
-                      dataRowMinHeight: 40,
-                      dataRowMaxHeight: 75,
-                      columns: _buildDataColumns(), // Use helper function to build columns
+                      child: PaginatedDataTable(
+                        header: SearchTextformfields(
+                          onSearch: _onSearchChanged,
+                        ),
+                        source: BalanceAccTableSource(
+                          context,
+                          data,
+                          loading,
+                          widget.userId,
+                        ),
+                        showFirstLastButtons: true,
+                        rowsPerPage: 5,
+                        columns: _buildDataColumns(),
+                      ),
                     ),
                   ),
                 ),
@@ -121,33 +149,27 @@ class _BalanceAccountsTableState extends State<BalanceAccountsTable> {
     );
   }
 
-  // Helper function to build data columns
   List<DataColumn> _buildDataColumns() {
     const columnLabels = [
-      'Grade Level #',
+      'Account ID',
       'Parent Name',
-      'Pupil Name',
+      'Student Name',
       'Grade Level',
-      'Pending balance',
+      'Pending Balance',
       'Action',
-    ]; // Column labels
+    ];
 
-    // Map column labels to DataColumn widgets with common styles
     return columnLabels.map((label) {
       return DataColumn(
         label: Text(
           label,
-          style: const TextStyle(color: Colors.black, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     }).toList();
   }
 }
-
-
-// const Center(
-//               child: SpinKitFadingCircle(
-//                 color: Colors.blue,
-//                 size: 34.0,
-//               ),
-//             )

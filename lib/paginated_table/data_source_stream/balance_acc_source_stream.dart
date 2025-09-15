@@ -50,8 +50,8 @@ void balanceAccStreamSource(
           final parentDoc = await db.collection('users').doc(docData['parentID']).get();
           final pupilDoc = await db.collection('enrollment_forms').doc(docData['pupilID']).get();
 
-          final parent = UserModel.fromMap(parentDoc.data()!);
-          final pupil = EnrollmentFormModel.fromMap(pupilDoc.data()!);
+          final parent = UserModel.fromMap(parentDoc.data() ?? {});
+          final pupil = EnrollmentFormModel.fromMap(pupilDoc.data() ?? {});
 
           return {
             'id': doc.id,

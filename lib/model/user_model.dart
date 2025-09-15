@@ -1,3 +1,5 @@
+import 'package:enrollease_web/dev.dart';
+
 class UserModel {
   final String userName;
   final String email;
@@ -21,6 +23,9 @@ class UserModel {
 
   // A method to convert data from a map (useful for Firestore)
   factory UserModel.fromMap(Map<String, dynamic> data) {
+    if (data.isEmpty) {
+      dPrint('Data is empty!');
+    }
     // Gender? gender;
     // switch (data['gender']) {
     //   case 'male':
@@ -38,8 +43,21 @@ class UserModel {
       email: data['email'] ?? '',
       contactNumber: data['contactNumber'] ?? '',
       uid: data['uid'] ?? '',
-      isActive: data['isActive'] ?? '',
+      isActive: _parseBool(data['isActive']),
     );
+  }
+
+  // Helper method to safely parse boolean values
+  static bool _parseBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is String) {
+      return value.toLowerCase() == 'true';
+    }
+    if (value is num) {
+      return value != 0;
+    }
+    return false;
   }
 
   // A method to convert the user object back to a map

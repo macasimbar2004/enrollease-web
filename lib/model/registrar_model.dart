@@ -13,10 +13,20 @@ class RegistrarModel {
   final String? nameExtension;
   final String password;
   final String? jobLevel;
+  final String? profilePicLink;
+  final String? profilePicData;
+  
+  // RBAC fields
+  final String? userType;
+  final List<String>? roles;
+  final String? status;
+  final String? gradeLevel;
 
   RegistrarModel({
     required this.id,
     required this.lastName,
+    required this.profilePicLink,
+    required this.profilePicData,
     required this.firstName,
     required this.middleName,
     required this.dateOfBirth,
@@ -29,12 +39,18 @@ class RegistrarModel {
     required this.password,
     this.nameExtension = 'Select',
     this.jobLevel = 'Registrar Staff',
+    this.userType,
+    this.roles,
+    this.status,
+    this.gradeLevel,
   });
 
   // Convert RegistrarModel to Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'profilePicLink': profilePicLink,
+      'profilePicData': profilePicData,
       'lastName': lastName,
       'firstName': firstName,
       'middleName': middleName,
@@ -48,6 +64,10 @@ class RegistrarModel {
       'nameExtension': nameExtension,
       'jobLevel': jobLevel,
       'password': password,
+      'userType': userType,
+      'roles': roles,
+      'status': status,
+      'gradeLevel': gradeLevel,
     };
   }
 }

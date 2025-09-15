@@ -1,5 +1,5 @@
 String termsAndConditions = '''
-# Terms and Conditions
+# EnrollEase Terms and Conditions
 
 ## 1. Introduction
 

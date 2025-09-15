@@ -1,5 +1,6 @@
 import 'package:enrollease_web/utils/colors.dart';
 import 'package:enrollease_web/utils/text_styles.dart';
+import 'package:enrollease_web/widgets/privacy_policy_widget.dart';
 import 'package:enrollease_web/widgets/terms_and_conditions_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +24,7 @@ Widget bottomCredits(BuildContext context) {
           children: [
             InkWell(
               onTap: () {
-                // Add privacy policy navigation
+                showDialog(context: context, builder: (context) => const PrivacyPolicyWidget());
               },
               child: Text(
                 'Privacy Policy',

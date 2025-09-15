@@ -38,14 +38,16 @@ class _PendingApprovalsTableState extends State<EnrollmentsTable> {
     super.initState();
     streamController = StreamController<List<Map<String, dynamic>>>.broadcast();
     _horizontalScrollController = ScrollController();
-    enrollmentsSourceStream(context, streamController, _searchQuery, widget.eStatus);
+    enrollmentsSourceStream(
+        context, streamController, _searchQuery, widget.eStatus);
   }
 
   void _onSearchChanged(String query) {
     if (mounted) {
       setState(() {
         _searchQuery = query;
-        enrollmentsSourceStream(context, streamController, _searchQuery, widget.eStatus);
+        enrollmentsSourceStream(
+            context, streamController, _searchQuery, widget.eStatus);
       });
     }
   }
@@ -55,7 +57,8 @@ class _PendingApprovalsTableState extends State<EnrollmentsTable> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.eStatus != widget.eStatus) {
       setState(() {
-        enrollmentsSourceStream(context, streamController, _searchQuery, widget.eStatus);
+        enrollmentsSourceStream(
+            context, streamController, _searchQuery, widget.eStatus);
       });
     }
   }
@@ -92,8 +95,6 @@ class _PendingApprovalsTableState extends State<EnrollmentsTable> {
         } else {
           final data = snapshot.data ?? [];
 
-          //dPrint('fetched data: $data');
-
           return Scrollbar(
             controller: _horizontalScrollController,
             thumbVisibility: true,
@@ -102,7 +103,8 @@ class _PendingApprovalsTableState extends State<EnrollmentsTable> {
             radius: const Radius.circular(8.0),
             child: SingleChildScrollView(
               controller: _horizontalScrollController,
-              physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+              physics:
+                  const ClampingScrollPhysics(), // Enables touch scrolling on mobile
               child: SizedBox(
                 height: 600,
                 child: Stack(
@@ -112,16 +114,18 @@ class _PendingApprovalsTableState extends State<EnrollmentsTable> {
                       header: SearchTextformfields(
                         onSearch: _onSearchChanged,
                       ),
-                      source: EnrollmentsTableSource(context, data, loading, toggleLoading),
+                      source: EnrollmentsTableSource(
+                          context, data, loading, toggleLoading),
                       showFirstLastButtons: true,
                       rowsPerPage: 5,
                       dataRowMinHeight: 40,
                       dataRowMaxHeight: 75,
-                      columns: _buildDataColumns(), // Use helper function to build columns
+                      columns:
+                          _buildDataColumns(), // Use helper function to build columns
                     ),
                     if (loading)
                       Container(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         child: const Center(
                             child: CircularProgressIndicator(
                           color: Colors.white,
@@ -152,7 +156,11 @@ class _PendingApprovalsTableState extends State<EnrollmentsTable> {
       return DataColumn(
         label: Text(
           label,
-          style: const TextStyle(color: Colors.black, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       );
     }).toList();

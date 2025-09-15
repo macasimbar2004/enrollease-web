@@ -32,10 +32,10 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
     // Access the provider
     final menuProvider = context.watch<SideMenuIndexController>();
 
-    // Example notification count
     int notificationCount = 5; // Replace this with your dynamic count
 
     return DrawerHeader(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide.none,
@@ -75,48 +75,48 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
           const Spacer(),
           if (widget.isToHide == null || widget.isToHide == false) const AdminAccountSetting(),
           if (widget.isToHide == null || widget.isToHide == false)
-            Stack(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    // Handle notification button press
-                    menuProvider.setSelectedIndex(0);
-                    menuProvider.setCurrentSelectedIndex(0);
-                  },
-                  icon: const Icon(
-                    Icons.notifications,
-                    size: 30,
-                    color: Colors.white,
-                  ),
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  // Handle notification button press
+                  menuProvider.setSelectedIndex(0);
+                  menuProvider.setCurrentSelectedIndex(0);
+                },
+                icon: const Icon(
+                  Icons.notifications,
+                  size: 30,
+                  color: Colors.white,
                 ),
-                if (notificationCount > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Center(
-                        child: Text(
-                          notificationCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+              ),
+              if (notificationCount > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Center(
+                      child: Text(
+                        notificationCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
+          ),
         ],
       ),
     );

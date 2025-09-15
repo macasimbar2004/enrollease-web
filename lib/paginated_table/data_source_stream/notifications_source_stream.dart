@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 void notificationsStreamSource(
   BuildContext context,
@@ -11,14 +9,14 @@ void notificationsStreamSource(
   String searchQuery, // Accept searchQuery as a parameter
 ) {
   if (streamController.isClosed) return;
-  final userID = context.read<AccountDataController>().currentRegistrar?.id;
+  // final userID = context.read<AccountDataController>().currentRegistrar?.id;
   final collectionRef = FirebaseFirestore.instance
       .collection('notifications')
       .where(
-        'uid',
-        isEqualTo: userID,
+        'type',
+        isEqualTo: 'registrar',
       )
-      .orderBy('timestamp');
+      .orderBy('timestamp', descending: true);
 
   collectionRef.snapshots().listen(
     (snapshot) {

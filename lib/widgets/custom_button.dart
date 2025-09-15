@@ -46,16 +46,27 @@ class CustomBtn extends StatelessWidget {
       child: InkWell(
         focusNode: focusNode,
         onTap: onTap,
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(18.0),
         child: Ink(
-          padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+          padding:
+              EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
+            borderRadius: BorderRadius.circular(18.0),
             color: colorBg,
+            boxShadow: [
+              BoxShadow(
+                color: colorBg.withValues(alpha: 0.3),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: SizedBox(
             height: height, // Set height here
-            child: Center(child: _buildContent(textStyle)),
+            child: Center(
+              child: _buildContent(textStyle),
+            ),
           ),
         ),
       ),
@@ -80,6 +91,8 @@ class CustomBtn extends StatelessWidget {
         child: Text(
           btnTxt!,
           style: textStyle,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
       );
     }
@@ -88,16 +101,21 @@ class CustomBtn extends StatelessWidget {
     if (imageAsset != null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
             imageAsset!,
-            width: 34.0,
-            height: 34.0,
+            width: 24.0,
+            height: 24.0,
           ),
           const SizedBox(width: 8.0), // Add spacing between image and text
-          Text(
-            btnTxt!,
-            style: textStyle,
+          Flexible(
+            child: Text(
+              btnTxt!,
+              style: textStyle,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ),
         ],
       );
@@ -106,16 +124,21 @@ class CustomBtn extends StatelessWidget {
     // Default layout with an icon
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           btnIcon,
           color: colorTxt,
-          size: 34.0,
+          size: 24.0, // Smaller icon size
         ),
         const SizedBox(width: 8.0), // Add spacing between icon and text
-        Text(
-          btnTxt!,
-          style: textStyle,
+        Flexible(
+          child: Text(
+            btnTxt!,
+            style: textStyle,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
         ),
       ],
     );
@@ -128,24 +151,72 @@ class CustomActionButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final VoidCallback? onPressed;
+  final EdgeInsetsGeometry? padding;
+  final double? width;
+  final double borderRadius;
+  final IconData? icon;
 
   const CustomActionButton({
     super.key,
     required this.text,
     required this.backgroundColor,
     required this.textColor,
-    this.onPressed,
+    required this.onPressed,
+    this.padding,
+    this.width,
+    this.borderRadius = 12.0,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(backgroundColor),
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return backgroundColor.withValues(alpha: 0.6);
+          }
+          return backgroundColor;
+        }),
         foregroundColor: WidgetStateProperty.all<Color>(textColor),
+        padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+          padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        ),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+        ),
+        elevation: WidgetStateProperty.resolveWith<double>((states) {
+          if (states.contains(WidgetState.pressed)) return 1.0;
+          return 3.0;
+        }),
       ),
       onPressed: onPressed,
-      child: Text(text),
+      child: SizedBox(
+        width: width,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Flexible(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

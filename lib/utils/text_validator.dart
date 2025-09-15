@@ -17,21 +17,20 @@ class TextValidator {
       // If empty or null, return an error message
       return 'Contact Number is required.';
     }
-    // Check if the length is not exactly 13 characters (including '+63')
-    else if (value!.length != 13) {
-      // If not 13 characters, return an error message indicating the required length
-      return 'Contact Number must be exactly 13 digits (including +63).';
+    // Check if the length is not exactly 11 digits
+    else if (value!.length != 11) {
+      // If not 11 characters, return an error message indicating the required length
+      return 'Contact Number must be exactly 11 digits.';
     }
-    // Check if the value starts with '+63' (the country code for the Philippines)
-    else if (!value.startsWith('+63')) {
-      // If it doesn't start with '+63', return an error message
-      return 'Contact Number must start with +63.';
+    // Check if the value starts with '09' (the standard format for Philippine mobile numbers)
+    else if (!value.startsWith('09')) {
+      // If it doesn't start with '09', return an error message
+      return 'Contact Number must start with 09.';
     }
-    // Check if the value matches the pattern for a valid contact number
-    // The regular expression ensures it starts with '+63' followed by exactly 10 digits
-    else if (!RegExp(r'^\+63\d{10}$').hasMatch(value)) {
+    // Check if the value contains only digits
+    else if (!RegExp(r'^\d{11}$').hasMatch(value)) {
       // If the regular expression doesn't match, return an error message
-      return 'Invalid Contact Number. It should be in the format +63XXXXXXXXXX.';
+      return 'Invalid Contact Number. It should contain only digits.';
     }
     // If all checks pass, return null indicating the contact number is valid
     return null;

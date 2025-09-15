@@ -1,16 +1,19 @@
+import 'package:enrollease_web/dev.dart';
 import 'package:flutter/foundation.dart';
 
 class SideMenuIndexController extends ChangeNotifier {
   int _selectedIndex = 0;
   int _currentIndexSelected = 0;
-  bool _isMenuVisible = true;
+  bool _isMenuVisible = false;
   bool _isToggling = false; // Add a new flag
   bool _isButtonDisabled = false; // New flag to disable the button
+  Map<String, dynamic> _data = {};
 
   int get selectedIndex => _selectedIndex;
   int get currentIndexSelected => _currentIndexSelected;
   bool get isMenuVisible => _isMenuVisible;
   bool get isButtonDisabled => _isButtonDisabled; // Getter for button state
+  Map<String, dynamic> get data => _data;
 
   String? _currentRoute;
   String? get currentRoute => _currentRoute;
@@ -21,7 +24,13 @@ class SideMenuIndexController extends ChangeNotifier {
   }
 
   void setSelectedIndex(int index) {
+    dPrint(index);
     _selectedIndex = index;
+    notifyListeners();
+  }
+
+  void setData(Map<String, dynamic> newData) {
+    _data = Map.from(newData);
     notifyListeners();
   }
 
@@ -44,5 +53,22 @@ class SideMenuIndexController extends ChangeNotifier {
       _isButtonDisabled = false; // Re-enable the button
       notifyListeners();
     });
+  }
+
+  // New method to hide the menu (used for navigation)
+  void hideMenuOnNavigation() {
+    if (_isMenuVisible && !_isToggling) {
+      _isToggling = true;
+      _isButtonDisabled = true;
+      _isMenuVisible = false;
+      notifyListeners();
+
+      // Reset flags after animation completes
+      Future.delayed(const Duration(milliseconds: 400), () {
+        _isToggling = false;
+        _isButtonDisabled = false;
+        notifyListeners();
+      });
+    }
   }
 }
