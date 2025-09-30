@@ -2,7 +2,11 @@ import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/states_management/user_context_provider.dart';
-import 'package:enrollease_web/utils/colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
+import 'package:enrollease_web/states_management/footer_config_provider.dart';
+import 'package:enrollease_web/services/app_initialization_service.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:enrollease_web/widgets/screen_selector_controller.dart';
 import 'package:enrollease_web/widgets/side_menu_widget.dart';
@@ -23,9 +27,17 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     // Update the last activity time when this screen loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       Provider.of<AccountDataController>(context, listen: false)
           .updateLastActivityTime();
+
+      // Initialize theme provider with constant colors fallback
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      await AppInitializationService.initializeWithConstantColors(
+          themeProvider);
+
+      // Initialize footer config provider
+      Provider.of<FooterConfigProvider>(context, listen: false).initialize();
 
       // Initialize user context
       _initializeUserContext();
@@ -37,17 +49,20 @@ class _MainScreenState extends State<MainScreen> {
         Provider.of<AccountDataController>(context, listen: false);
     final userContext =
         Provider.of<UserContextProvider>(context, listen: false);
+    final menuController =
+        Provider.of<SideMenuIndexController>(context, listen: false);
 
     final currentRegistrar = accountProvider.currentRegistrar;
     if (currentRegistrar != null) {
       // Debug: Print current registrar data
       print('DEBUG: Current registrar data:');
       print('  ID: ${currentRegistrar.id}');
-      print('  Name: ${currentRegistrar.firstName} ${currentRegistrar.lastName}');
+      print(
+          '  Name: ${currentRegistrar.firstName} ${currentRegistrar.lastName}');
       print('  User Type: ${currentRegistrar.userType}');
       print('  Roles: ${currentRegistrar.roles}');
       print('  Status: ${currentRegistrar.status}');
-      
+
       // Check if this is a faculty/staff user or legacy user
       if (currentRegistrar.userType != null && currentRegistrar.roles != null) {
         // New faculty/staff user
@@ -61,6 +76,7 @@ class _MainScreenState extends State<MainScreen> {
           status: currentRegistrar.status ?? 'active',
           gradeLevel: currentRegistrar.gradeLevel,
           profilePic: currentRegistrar.profilePicLink,
+          menuController: menuController,
         );
       } else {
         // Legacy user - convert to new format
@@ -72,9 +88,10 @@ class _MainScreenState extends State<MainScreen> {
           email: currentRegistrar.email,
           role: 'Registrar Officer', // Default role for legacy users
           isActive: true, // Assume active for legacy users
+          menuController: menuController,
         );
       }
-      
+
       // Debug: Print user context after setup
       print('DEBUG: User context after setup:');
       print('  User Type: ${userContext.userType}');
@@ -115,7 +132,9 @@ class _MainScreenState extends State<MainScreen> {
             if (!ResponsiveWidget.isSmallScreen(context))
               AnimatedContainer(
                   width: isVisible ? 300 : 76,
-                  color: CustomColors.contentColor,
+                  color: Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context),
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   child: const SideMenuWidget()),

@@ -1,6 +1,7 @@
 import 'package:enrollease_web/account_screen/menu/settings_menu.dart';
 import 'package:enrollease_web/states_management/account_data_controller.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/account_pop_menu.dart';
 import 'package:enrollease_web/widgets/profile_pic.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,9 @@ class AdminAccountSettingState extends State<AdminAccountSetting> {
     return Container(
       width: 200,
       height: 80,
-      decoration: const BoxDecoration(
-        color: CustomColors.contentColor,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+      decoration: BoxDecoration(
+        color: ThemeColors.content(context),
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

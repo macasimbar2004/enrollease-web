@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import '../paginated_table/table/students_table.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/custom_body.dart';
-import '../utils/colors.dart';
+
+import '../utils/theme_colors.dart';
+import '../states_management/theme_provider.dart';
 import '../utils/bottom_credits.dart';
+import 'package:provider/provider.dart';
 import '../widgets/responsive_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,9 +39,11 @@ class _StudentsPageState extends State<StudentsPage> {
   Widget build(BuildContext context) {
     final isSmallOrMediumScreen = ResponsiveWidget.isMediumScreen(context) ||
         ResponsiveWidget.isLargeScreen(context);
-    
+
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Students',
         userId: widget.userId,
@@ -89,7 +94,10 @@ class _StudentsPageState extends State<StudentsPage> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CustomColors.contentColor.withValues(alpha: 0.2),
+              color: (Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context))
+                  .withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const FaIcon(
@@ -121,53 +129,53 @@ class _StudentsPageState extends State<StudentsPage> {
                 ),
               ],
             ),
-                     ),
-           _buildSearchField(),
-         ],
-       ),
-     );
-   }
+          ),
+          _buildSearchField(),
+        ],
+      ),
+    );
+  }
 
-   Widget _buildSearchField() {
-     return Container(
-       decoration: BoxDecoration(
-         color: Colors.white.withValues(alpha: 0.1),
-         borderRadius: BorderRadius.circular(12),
-         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-       ),
-       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-       child: Row(
-         mainAxisSize: MainAxisSize.min,
-         children: [
-           const FaIcon(
-             FontAwesomeIcons.magnifyingGlass,
-             color: Colors.white,
-             size: 14,
-           ),
-           const SizedBox(width: 8),
-           SizedBox(
-             width: 200,
-             child: TextField(
-               controller: _searchController,
-               style: GoogleFonts.poppins(
-                 color: Colors.white,
-                 fontSize: 14,
-               ),
-               decoration: InputDecoration(
-                 hintText: 'Search students...',
-                 hintStyle: GoogleFonts.poppins(
-                   color: Colors.white70,
-                   fontSize: 14,
-                 ),
-                 border: InputBorder.none,
-                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-               ),
-             ),
-           ),
-         ],
-       ),
-     );
-   }
+  Widget _buildSearchField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const FaIcon(
+            FontAwesomeIcons.magnifyingGlass,
+            color: Colors.white,
+            size: 14,
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 200,
+            child: TextField(
+              controller: _searchController,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search students...',
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildTableSection() {
     return Column(
@@ -206,13 +214,13 @@ class _StudentsPageState extends State<StudentsPage> {
           ),
         ),
         const SizedBox(height: 20),
-                 SizedBox(
-           height: 600, // Fixed height to prevent layout issues
-           child: StudentsTable(
-             userId: widget.userId,
-             searchController: _searchController,
-           ),
-         ),
+        SizedBox(
+          height: 600, // Fixed height to prevent layout issues
+          child: StudentsTable(
+            userId: widget.userId,
+            searchController: _searchController,
+          ),
+        ),
       ],
     );
   }

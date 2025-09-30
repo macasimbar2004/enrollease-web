@@ -1,6 +1,7 @@
 import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/utils/app_size.dart';
-import 'package:enrollease_web/utils/colors.dart';
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/utils/logos.dart';
 import 'package:enrollease_web/utils/text_styles.dart';
@@ -34,9 +35,10 @@ class _SignInState extends State<SignIn> {
   void initState() {
     super.initState();
     // Check if there's already a user session on startup
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final accountController =
           Provider.of<AccountDataController>(context, listen: false);
+
       if (accountController.isLoggedIn) {
         // User is already logged in, navigate to main screen
         final uri = Uri(
@@ -130,7 +132,9 @@ class _SignInState extends State<SignIn> {
     AppSizes().init(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.signInColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['surface'] ??
+          ThemeColors.surface(context),
       body: SafeArea(
         bottom: false,
         child: Center(
@@ -141,7 +145,9 @@ class _SignInState extends State<SignIn> {
                 constraints: const BoxConstraints(maxWidth: 450),
                 child: CustomCard(
                   elevation: 4.0,
-                  color: CustomColors.appBarColor,
+                  color: Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['background'] ??
+                      ThemeColors.background(context),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
                   child: Form(
@@ -154,12 +160,14 @@ class _SignInState extends State<SignIn> {
                         Align(
                           alignment: Alignment.center,
                           child: CircleAvatar(
-                              backgroundColor: Colors.white.withValues(alpha: 0.9),
+                              backgroundColor:
+                                  Colors.white.withValues(alpha: 0.9),
                               radius: 80,
                               child: Padding(
                                 padding: const EdgeInsets.all(15.0),
                                 child: Image.asset(
-                                  CustomLogos.enrolleaseLogo,
+                                  CustomLogos
+                                      .enrolleaseLogo, // SmartEdu logo - always static
                                   fit: BoxFit.contain,
                                 ),
                               )),
@@ -239,7 +247,10 @@ class _SignInState extends State<SignIn> {
                                 : () async => await handleSignIn(context),
                             vertical: 12,
                             height: 48,
-                            colorBg: CustomColors.contentColor,
+                            colorBg: Provider.of<ThemeProvider>(context,
+                                        listen: false)
+                                    .currentColors['content'] ??
+                                ThemeColors.content(context),
                             colorTxt: Colors.white,
                             btnTxt: 'LOGIN',
                             btnFontWeight: FontWeight.w600,
@@ -263,4 +274,5 @@ class _SignInState extends State<SignIn> {
       ),
     );
   }
+
 }

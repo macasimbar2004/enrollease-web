@@ -115,6 +115,9 @@ class _LogoutDialogState extends State<LogoutDialog> {
               targetType: 'registrar',
             );
             if (!context.mounted) return;
+
+            // Clear session cache and logout
+            await FirebaseAuthProvider().signOut();
             context.read<AccountDataController>().setLoggedIn(false);
             context.read<SideMenuIndexController>().setSelectedIndex(0);
             GoRouter.of(context).go('/');

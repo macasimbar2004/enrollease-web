@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:enrollease_web/paginated_table/data_source_stream/student_logs_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/student_logs_table_source.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 
 class StudentLogsTable extends StatefulWidget {
@@ -55,9 +56,9 @@ class _StudentLogsTableState extends State<StudentLogsTable> {
       stream: streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: SpinKitFadingCircle(
-              color: CustomColors.bottomNavColor,
+              color: ThemeColors.content(context),
               size: 100.0,
             ),
           );

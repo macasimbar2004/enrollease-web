@@ -2,8 +2,11 @@ import 'package:enrollease_web/data/side_menu_data.dart';
 import 'package:enrollease_web/model/menu_model.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/states_management/user_context_provider.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/utils/logos.dart';
+import 'package:enrollease_web/widgets/dynamic_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +29,7 @@ class SideMenuWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final providerState = context.watch<SideMenuIndexController>();
     final userContext = context.watch<UserContextProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
     final isMenuVisible = providerState.isMenuVisible;
 
     // Get accessible menu items based on user roles
@@ -61,8 +65,11 @@ class SideMenuWidget extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      CustomColors.contentColor,
-                      CustomColors.contentColor.withValues(alpha: 0.8),
+                      themeProvider.currentColors['content'] ??
+                          ThemeColors.content(context),
+                      (themeProvider.currentColors['content'] ??
+                              ThemeColors.content(context))
+                          .withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -112,9 +119,8 @@ class SideMenuWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Image.asset(
-                          CustomLogos.adventistLogo,
+                      child: const Center(
+                        child: AdventistLogo(
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -168,6 +174,7 @@ class SideMenuWidget extends StatelessWidget {
         final bool showText = provider.isMenuVisible;
         final iconSize = showText ? 32.0 : 28.0;
         final padding = showText ? constraints.maxWidth * 0.1 : 0.0;
+        final themeProvider = context.watch<ThemeProvider>();
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -175,12 +182,16 @@ class SideMenuWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: isSelected
-                ? CustomColors.contentColor.withValues(alpha: 0.1)
+                ? (themeProvider.currentColors['content'] ??
+                        ThemeColors.content(context))
+                    .withValues(alpha: 0.1)
                 : Colors.transparent,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: CustomColors.contentColor.withValues(alpha: 0.1),
+                      color: (themeProvider.currentColors['content'] ??
+                              ThemeColors.content(context))
+                          .withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -210,7 +221,8 @@ class SideMenuWidget extends StatelessWidget {
                         child: Icon(
                           accessibleMenuItems[index].icon,
                           color: isSelected
-                              ? CustomColors.contentColor
+                              ? (themeProvider.currentColors['content'] ??
+                                  ThemeColors.content(context))
                               : Colors.black54,
                           size: iconSize,
                         ),
@@ -220,7 +232,8 @@ class SideMenuWidget extends StatelessWidget {
                           Icon(
                             accessibleMenuItems[index].icon,
                             color: isSelected
-                                ? CustomColors.contentColor
+                                ? (themeProvider.currentColors['content'] ??
+                                    ThemeColors.content(context))
                                 : Colors.black54,
                             size: iconSize,
                           ),
@@ -231,7 +244,8 @@ class SideMenuWidget extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: constraints.maxWidth * 0.045,
                                 color: isSelected
-                                    ? CustomColors.contentColor
+                                    ? (themeProvider.currentColors['content'] ??
+                                        ThemeColors.content(context))
                                     : Colors.black87,
                                 fontWeight: isSelected
                                     ? FontWeight.w600

@@ -3,9 +3,12 @@ import '../widgets/custom_appbar.dart';
 import '../widgets/custom_body.dart';
 import '../widgets/responsive_widget.dart';
 import '../utils/bottom_credits.dart';
-import '../utils/colors.dart';
+
+import '../utils/theme_colors.dart';
 import '../paginated_table/table/announcements_table.dart';
 import '../widgets/add_announcement_dialog.dart';
+import '../states_management/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -26,7 +29,9 @@ class AnnouncementsPage extends StatelessWidget {
         ResponsiveWidget.isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Announcements',
         userId: userId,
@@ -77,7 +82,10 @@ class AnnouncementsPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CustomColors.contentColor.withValues(alpha: 0.2),
+              color: (Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context))
+                  .withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const FaIcon(
@@ -121,8 +129,13 @@ class AnnouncementsPage extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            CustomColors.contentColor,
-            CustomColors.contentColor.withValues(alpha: 0.8),
+            Provider.of<ThemeProvider>(context, listen: false)
+                    .currentColors['content'] ??
+                ThemeColors.content(context),
+            (Provider.of<ThemeProvider>(context, listen: false)
+                        .currentColors['content'] ??
+                    ThemeColors.content(context))
+                .withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(12),

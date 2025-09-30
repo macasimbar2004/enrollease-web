@@ -11,6 +11,7 @@ import 'package:enrollease_web/pages/faculty_staff.dart';
 import 'package:enrollease_web/pages/students_page.dart';
 import 'package:enrollease_web/pages/users_page.dart';
 import 'package:enrollease_web/pages/student_logs_page.dart';
+import 'package:enrollease_web/pages/theme_customization_page.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -83,46 +84,51 @@ class ScreenSelectorController extends StatelessWidget {
       case 8:
         return const AdminPanel();
       case 9:
-        return FacultyStaff(
+        return ThemeCustomizationPage(
           userId: userId,
           userName: userName,
         );
       case 10:
-        return Enrollments(
+        return FacultyStaff(
           userId: userId,
           userName: userName,
         );
       case 11:
-        return StatementOfAccount(
+        return Enrollments(
           userId: userId,
           userName: userName,
         );
       case 12:
+        return StatementOfAccount(
+          userId: userId,
+          userName: userName,
+        );
+      case 13:
         return StudentsPage(
           userId: userId!,
           userName: userName,
         );
-      case 13:
+      case 14:
         return AcademicGradesPage(
           userId: userId!,
           userName: userName,
         );
-      case 14:
+      case 15:
         return UsersPage(
           userId: userId,
           userName: userName,
         );
-      case 15:
+      case 16:
         return AnnouncementsPage(
           userId: userId,
           userName: userName,
         );
-      case 16:
+      case 17:
         return StudentLogsPage(
           userId: userId,
           userName: userName,
         );
-      case 17:
+      case 18:
         return ProfilePage(
           userId: userId!,
         );

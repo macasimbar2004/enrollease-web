@@ -9,7 +9,8 @@ import '../model/student_grade_model.dart';
 import '../widgets/responsive_widget.dart';
 import '../widgets/student_grade_dialog.dart';
 import '../utils/bottom_credits.dart';
-import '../utils/colors.dart';
+import '../utils/theme_colors.dart';
+import '../states_management/theme_provider.dart';
 import '../utils/grade_service.dart';
 import '../utils/efficient_grade_service.dart';
 import '../utils/grade_level_utils.dart';
@@ -153,7 +154,9 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
         ResponsiveWidget.isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Academic Grades',
         userId: widget.userId,
@@ -206,7 +209,10 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: CustomColors.contentColor.withValues(alpha: 0.2),
+                  color: (Provider.of<ThemeProvider>(context, listen: false)
+                              .currentColors['content'] ??
+                          ThemeColors.content(context))
+                      .withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const FaIcon(
@@ -650,7 +656,7 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
                   dataRowMaxHeight: 60,
                   columns: [
                     DataColumn(
-                      label: Container(
+                      label: SizedBox(
                         width: 120,
                         child: Row(
                           children: [
@@ -680,7 +686,7 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
                       ),
                     ),
                     DataColumn(
-                      label: Container(
+                      label: SizedBox(
                         width: 150,
                         child: Row(
                           children: [
@@ -710,7 +716,7 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
                       ),
                     ),
                     ...Subjects.allSubjects.map((subject) => DataColumn(
-                          label: Container(
+                          label: SizedBox(
                             width: 80,
                             child: Row(
                               children: [
@@ -743,7 +749,7 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
                           ),
                         )),
                     DataColumn(
-                      label: Container(
+                      label: SizedBox(
                         width: 90,
                         child: Row(
                           children: [
@@ -773,7 +779,7 @@ class _AcademicGradesPageState extends State<AcademicGradesPage> {
                       ),
                     ),
                     DataColumn(
-                      label: Container(
+                      label: SizedBox(
                         width: 120,
                         child: Row(
                           children: [

@@ -1,6 +1,9 @@
 import 'package:enrollease_web/paginated_table/table/registrars_table.dart';
 import 'package:enrollease_web/utils/bottom_credits.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
@@ -33,7 +36,9 @@ class _RegistrarsState extends State<Registrars> {
     final isSmallOrMediumScreen = ResponsiveWidget.isMediumScreen(context) ||
         ResponsiveWidget.isLargeScreen(context);
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Registrars',
         userId: widget.userId,
@@ -90,7 +95,11 @@ class _RegistrarsState extends State<Registrars> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: CustomColors.contentColor.withValues(alpha: 0.2),
+                        color:
+                            (Provider.of<ThemeProvider>(context, listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context))
+                                .withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const FaIcon(
@@ -139,8 +148,13 @@ class _RegistrarsState extends State<Registrars> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            CustomColors.contentColor,
-            CustomColors.contentColor.withValues(alpha: 0.8),
+            Provider.of<ThemeProvider>(context, listen: false)
+                    .currentColors['content'] ??
+                ThemeColors.content(context),
+            (Provider.of<ThemeProvider>(context, listen: false)
+                        .currentColors['content'] ??
+                    ThemeColors.content(context))
+                .withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(12),

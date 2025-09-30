@@ -1,4 +1,5 @@
 import 'package:enrollease_web/dev.dart';
+import 'package:enrollease_web/data/side_menu_data.dart';
 import 'package:flutter/foundation.dart';
 
 class SideMenuIndexController extends ChangeNotifier {
@@ -70,5 +71,44 @@ class SideMenuIndexController extends ChangeNotifier {
         notifyListeners();
       });
     }
+  }
+
+  /// Initialize the menu index to the first accessible menu item for the user's roles
+  void initializeForUserRoles(List<String> userRoles) {
+    if (userRoles.isEmpty) {
+      // If no roles, default to index 0 (should not happen in normal flow)
+      _selectedIndex = 0;
+      notifyListeners();
+      return;
+    }
+
+    // Get accessible menu items for the user
+    final accessibleMenuItems = SideMenuData.getAccessibleMenuItems(userRoles);
+
+    if (accessibleMenuItems.isEmpty) {
+      // If no accessible items, default to index 0 (should not happen in normal flow)
+      _selectedIndex = 0;
+      notifyListeners();
+      return;
+    }
+
+    // Find the index of the first accessible menu item in the full menu
+    final firstAccessibleItem = accessibleMenuItems.first;
+    final fullMenuIndex = SideMenuData.menu.indexWhere(
+      (item) => item.title == firstAccessibleItem.title,
+    );
+
+    if (fullMenuIndex != -1) {
+      _selectedIndex = fullMenuIndex;
+      dPrint(
+          'Initialized menu index to $fullMenuIndex for first accessible item: ${firstAccessibleItem.title}');
+    } else {
+      // Fallback to index 0 if something goes wrong
+      _selectedIndex = 0;
+      dPrint(
+          'Warning: Could not find menu index for ${firstAccessibleItem.title}, defaulting to 0');
+    }
+
+    notifyListeners();
   }
 }

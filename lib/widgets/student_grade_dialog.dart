@@ -293,8 +293,8 @@ class _EnterGradesDialogState extends State<EnterGradesDialog> {
                                         Container(
                                           width: 8,
                                           height: 8,
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromRGBO(
+                                          decoration: const BoxDecoration(
+                                            color: Color.fromRGBO(
                                                 111, 135, 108, 1),
                                             shape: BoxShape.circle,
                                           ),
@@ -351,9 +351,9 @@ class _EnterGradesDialogState extends State<EnterGradesDialog> {
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.school,
-                                          color: const Color.fromRGBO(
+                                          color: Color.fromRGBO(
                                               111, 135, 108, 1),
                                           size: 20,
                                         ),

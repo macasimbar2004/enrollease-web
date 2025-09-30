@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:enrollease_web/paginated_table/data_source_stream/notifications_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/notiifcations_table_source.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -53,9 +54,9 @@ class _PupilsTableState extends State<NotificationsTable> {
       stream: streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: SpinKitFadingCircle(
-              color: CustomColors.bottomNavColor,
+              color: ThemeColors.content(context),
               size: 100.0,
             ),
           );

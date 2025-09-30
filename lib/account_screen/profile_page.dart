@@ -2,7 +2,9 @@ import 'package:enrollease_web/dev.dart';
 import 'package:enrollease_web/states_management/account_data_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/utils/app_size.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
 import 'package:enrollease_web/widgets/custom_toast.dart';
@@ -226,15 +228,22 @@ class _ProfileDialogState extends State<ProfileDialog> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             Icon(Icons.person,
-                                color: CustomColors.contentColor, size: 28),
-                            SizedBox(width: 8),
+                                color: Provider.of<ThemeProvider>(context,
+                                            listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context),
+                                size: 28),
+                            const SizedBox(width: 8),
                             Text(
                               'Profile',
                               style: TextStyle(
-                                color: CustomColors.contentColor,
+                                color: Provider.of<ThemeProvider>(context,
+                                            listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context),
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -300,7 +309,10 @@ class _ProfileDialogState extends State<ProfileDialog> {
                               child: Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: CustomColors.contentColor,
+                                  color: Provider.of<ThemeProvider>(context,
+                                              listen: false)
+                                          .currentColors['content'] ??
+                                      ThemeColors.content(context),
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
@@ -332,10 +344,16 @@ class _ProfileDialogState extends State<ProfileDialog> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color:
-                            CustomColors.contentColor.withValues(alpha: 0.04),
+                            (Provider.of<ThemeProvider>(context, listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context))
+                                .withValues(alpha: 0.04),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                            color: CustomColors.contentColor
+                            color: (Provider.of<ThemeProvider>(context,
+                                            listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context))
                                 .withValues(alpha: 0.08)),
                       ),
                       child: _buildProfileForm(context),
@@ -346,24 +364,37 @@ class _ProfileDialogState extends State<ProfileDialog> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color:
-                            CustomColors.contentColor.withValues(alpha: 0.03),
+                            (Provider.of<ThemeProvider>(context, listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context))
+                                .withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                            color: CustomColors.contentColor
+                            color: (Provider.of<ThemeProvider>(context,
+                                            listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context))
                                 .withValues(alpha: 0.08)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
                               Icon(Icons.lock,
-                                  color: CustomColors.contentColor, size: 20),
-                              SizedBox(width: 8),
+                                  color: Provider.of<ThemeProvider>(context,
+                                              listen: false)
+                                          .currentColors['content'] ??
+                                      ThemeColors.content(context),
+                                  size: 20),
+                              const SizedBox(width: 8),
                               Text(
                                 'Change Password',
                                 style: TextStyle(
-                                  color: CustomColors.contentColor,
+                                  color: Provider.of<ThemeProvider>(context,
+                                              listen: false)
+                                          .currentColors['content'] ??
+                                      ThemeColors.content(context),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
                                 ),
@@ -449,7 +480,10 @@ class _ProfileDialogState extends State<ProfileDialog> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.contentColor,
+                  backgroundColor:
+                      Provider.of<ThemeProvider>(context, listen: false)
+                              .currentColors['content'] ??
+                          ThemeColors.content(context),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -901,10 +935,12 @@ class _ProfileDialogState extends State<ProfileDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Current Password',
             style: TextStyle(
-              color: CustomColors.contentColor,
+              color: Provider.of<ThemeProvider>(context, listen: false)
+                      .currentColors['content'] ??
+                  ThemeColors.content(context),
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
@@ -947,10 +983,12 @@ class _ProfileDialogState extends State<ProfileDialog> {
             },
           ),
           const SizedBox(height: 5),
-          const Text(
+          Text(
             'New Password',
             style: TextStyle(
-              color: CustomColors.contentColor,
+              color: Provider.of<ThemeProvider>(context, listen: false)
+                      .currentColors['content'] ??
+                  ThemeColors.content(context),
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
@@ -988,10 +1026,12 @@ class _ProfileDialogState extends State<ProfileDialog> {
             },
           ),
           const SizedBox(height: 5),
-          const Text(
+          Text(
             'Confirm Password',
             style: TextStyle(
-              color: CustomColors.contentColor,
+              color: Provider.of<ThemeProvider>(context, listen: false)
+                      .currentColors['content'] ??
+                  ThemeColors.content(context),
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),

@@ -1,6 +1,7 @@
 // import 'package:enrollease_web/paginated_table/table/pupils_table.dart.dart';
 // import 'package:enrollease_web/utils/app_size.dart';
-// import 'package:enrollease_web/utils/colors.dart';
+//
+import 'package:enrollease_web/utils/theme_colors.dart';
 // import 'package:flutter/material.dart';
 
 // class ApprovedForms extends StatefulWidget {
@@ -19,7 +20,7 @@
 //     // final isSmallOrMediumScreen = ResponsiveWidget.isMediumScreen(context) || ResponsiveWidget.isLargeScreen(context);
 
 //     return const Scaffold(
-//       backgroundColor: CustomColors.appBarColor,
+//       backgroundColor: ThemeColors.appBarPrimary(context),
 //       body: SafeArea(
 //         child: SingleChildScrollView(
 //           child: Column(

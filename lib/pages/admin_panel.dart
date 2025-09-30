@@ -1,5 +1,7 @@
-import 'package:enrollease_web/utils/colors.dart';
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
@@ -105,7 +107,12 @@ class _AdminPanelState extends State<AdminPanel> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.contentColor,
+              backgroundColor:
+                  Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context),
               foregroundColor: Colors.white,
             ),
             child: const Text('Confirm'),
@@ -144,7 +151,9 @@ class _AdminPanelState extends State<AdminPanel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: const CustomAppBar(title: 'Admin Panel'),
       body: CustomBody(
         padding: const EdgeInsets.all(20),
@@ -277,9 +286,18 @@ class _AdminPanelState extends State<AdminPanel> {
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        CustomColors.contentColor,
-                                        CustomColors.contentColor
-                                            .withValues(alpha: 0.8),
+                                        Provider.of<ThemeProvider>(context,
+                                                    listen: false)
+                                                .currentColors['content'] ??
+                                            Provider.of<ThemeProvider>(context,
+                                                    listen: false)
+                                                .currentColors['content'] ??
+                                            ThemeColors.content(context),
+                                        Provider.of<ThemeProvider>(context,
+                                                    listen: false)
+                                                .currentColors['content'] ??
+                                            ThemeColors.content(context)
+                                                .withValues(alpha: 0.8),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(12),
@@ -331,8 +349,15 @@ class _AdminPanelState extends State<AdminPanel> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  CustomColors.contentColor,
-                  CustomColors.contentColor.withValues(alpha: 0.8),
+                  Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context),
+                  (Provider.of<ThemeProvider>(context, listen: false)
+                              .currentColors['content'] ??
+                          ThemeColors.content(context))
+                      .withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -465,8 +490,15 @@ class _AdminPanelState extends State<AdminPanel> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  CustomColors.contentColor,
-                  CustomColors.contentColor.withValues(alpha: 0.8),
+                  Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context),
+                  (Provider.of<ThemeProvider>(context, listen: false)
+                              .currentColors['content'] ??
+                          ThemeColors.content(context))
+                      .withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),

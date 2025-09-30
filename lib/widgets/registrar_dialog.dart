@@ -4,7 +4,7 @@ import 'package:enrollease_web/model/faculty_staff_model.dart';
 import 'package:enrollease_web/model/registrar_model.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/utils/grade_level_utils.dart';
-import 'package:enrollease_web/utils/logos.dart';
+import 'package:enrollease_web/widgets/dynamic_logo.dart';
 import 'package:enrollease_web/utils/text_validator.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
 import 'package:enrollease_web/widgets/custom_textformfields.dart';
@@ -310,17 +310,17 @@ class _RegistrarDialogState extends State<RegistrarDialog> {
                                                   fit: BoxFit.cover,
                                                   errorBuilder: (context, error,
                                                       stackTrace) {
-                                                    return Image.asset(
-                                                      CustomLogos
-                                                          .editProfileImage,
+                                                    return const DynamicLogo(
+                                                      logoType:
+                                                          'defaultProfilePic',
                                                       width: 180,
                                                       height: 180,
                                                       fit: BoxFit.cover,
                                                     );
                                                   },
                                                 )
-                                              : Image.asset(
-                                                  CustomLogos.editProfileImage,
+                                              : const DynamicLogo(
+                                                  logoType: 'defaultProfilePic',
                                                   width: 180,
                                                   height: 180,
                                                   fit: BoxFit.cover,

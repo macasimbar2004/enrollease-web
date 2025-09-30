@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:enrollease_web/paginated_table/data_source_stream/registrars_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/registars_table_source.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -122,9 +123,9 @@ class _RegistrarsTableState extends State<RegistrarsTable> {
       stream: streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: SpinKitFadingCircle(
-              color: CustomColors.contentColor,
+              color: ThemeColors.content(context),
               size: 100.0,
             ),
           );

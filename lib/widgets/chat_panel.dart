@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import '../model/chat_model.dart';
 import '../services/chat_service.dart';
-import '../utils/colors.dart';
+import '../utils/theme_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -216,7 +216,7 @@ class _ChatPanelState extends State<ChatPanel> {
                   backgroundImage: snapshot.data != null
                       ? MemoryImage(snapshot.data!)
                       : null,
-                  backgroundColor: CustomColors.color1,
+                  backgroundColor: ThemeColors.content(context),
                   onBackgroundImageError: snapshot.data != null
                       ? (exception, stackTrace) {
                           debugPrint('Error loading profile image: $exception');
@@ -312,10 +312,10 @@ class _ChatPanelState extends State<ChatPanel> {
               future: _getUserData(otherParticipantId),
               builder: (context, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
-                  return const ListTile(
+                  return ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: CustomColors.color1,
-                      child: CircularProgressIndicator(
+                      backgroundColor: ThemeColors.content(context),
+                      child: const CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 2,
                       ),
@@ -334,7 +334,7 @@ class _ChatPanelState extends State<ChatPanel> {
                         backgroundImage: imageSnapshot.data != null
                             ? MemoryImage(imageSnapshot.data!)
                             : null,
-                        backgroundColor: CustomColors.color1,
+                        backgroundColor: ThemeColors.content(context),
                         onBackgroundImageError: imageSnapshot.data != null
                             ? (exception, stackTrace) {
                                 debugPrint(
@@ -514,7 +514,7 @@ class _ChatPanelState extends State<ChatPanel> {
                                     backgroundImage: snapshot.data != null
                                         ? MemoryImage(snapshot.data!)
                                         : null,
-                                    backgroundColor: CustomColors.color1,
+                                    backgroundColor: ThemeColors.content(context),
                                     onBackgroundImageError:
                                         snapshot.data != null
                                             ? (exception, stackTrace) {
@@ -536,7 +536,7 @@ class _ChatPanelState extends State<ChatPanel> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: isMe
-                                        ? CustomColors.color1
+                                        ? ThemeColors.content(context)
                                         : Colors.grey[200],
                                     borderRadius: BorderRadius.circular(16),
                                   ),
@@ -571,7 +571,7 @@ class _ChatPanelState extends State<ChatPanel> {
             children: [
               IconButton(
                 icon: const Icon(Icons.image),
-                color: CustomColors.color1,
+                color: ThemeColors.content(context),
                 onPressed: _pickImage,
               ),
               Expanded(
@@ -596,7 +596,7 @@ class _ChatPanelState extends State<ChatPanel> {
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.send),
-                color: CustomColors.color1,
+                color: ThemeColors.content(context),
                 onPressed: _sendMessage,
               ),
             ],

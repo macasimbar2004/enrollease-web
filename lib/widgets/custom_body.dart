@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class CustomBody extends StatelessWidget {
   final Widget child;
@@ -96,8 +99,14 @@ class CustomBody extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: gradientColors ??
                       [
-                        CustomColors.contentColor.withValues(alpha: 0.05),
-                        CustomColors.contentColor.withValues(alpha: 0.02),
+                        (Provider.of<ThemeProvider>(context, listen: false)
+                                    .currentColors['content'] ??
+                                ThemeColors.content(context))
+                            .withValues(alpha: 0.05),
+                        (Provider.of<ThemeProvider>(context, listen: false)
+                                    .currentColors['content'] ??
+                                ThemeColors.content(context))
+                            .withValues(alpha: 0.02),
                       ],
                 )
               : null,

@@ -1,4 +1,5 @@
-import 'package:enrollease_web/utils/colors.dart';
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
@@ -6,12 +7,12 @@ import 'package:enrollease_web/utils/bottom_credits.dart';
 import 'package:enrollease_web/model/student_model.dart';
 import 'package:enrollease_web/utils/firebase_auth.dart';
 import 'package:enrollease_web/utils/grade_level_utils.dart';
-import 'package:enrollease_web/model/grade_level_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 class AdminStudentsView extends StatefulWidget {
   const AdminStudentsView({
@@ -28,7 +29,6 @@ class AdminStudentsView extends StatefulWidget {
 
 class _AdminStudentsViewState extends State<AdminStudentsView> {
   final TextEditingController _searchController = TextEditingController();
-  final FirebaseAuthProvider _firebaseAuth = FirebaseAuthProvider();
   List<StudentModel> _allStudents = [];
   List<StudentModel> _filteredStudents = [];
   bool _isLoading = true;
@@ -113,7 +113,9 @@ class _AdminStudentsViewState extends State<AdminStudentsView> {
         ResponsiveWidget.isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Admin Students View',
         userId: widget.userId,
@@ -331,7 +333,10 @@ class _AdminStudentsViewState extends State<AdminStudentsView> {
                                   _filterStudents();
                                 });
                               },
-                              dropdownColor: CustomColors.appBarColor,
+                              dropdownColor: Provider.of<ThemeProvider>(context,
+                                          listen: false)
+                                      .currentColors['content'] ??
+                                  ThemeColors.appBarPrimary(context),
                               style: GoogleFonts.poppins(color: Colors.white),
                               underline: const SizedBox(),
                               isExpanded: true,
@@ -363,7 +368,10 @@ class _AdminStudentsViewState extends State<AdminStudentsView> {
                                   _filterStudents();
                                 });
                               },
-                              dropdownColor: CustomColors.appBarColor,
+                              dropdownColor: Provider.of<ThemeProvider>(context,
+                                          listen: false)
+                                      .currentColors['content'] ??
+                                  ThemeColors.appBarPrimary(context),
                               style: GoogleFonts.poppins(color: Colors.white),
                               underline: const SizedBox(),
                               isExpanded: true,
@@ -446,7 +454,7 @@ class _AdminStudentsViewState extends State<AdminStudentsView> {
                               _filterStudents();
                             });
                           },
-                          dropdownColor: CustomColors.appBarColor,
+                          dropdownColor: ThemeColors.appBarPrimary(context),
                           style: GoogleFonts.poppins(color: Colors.white),
                           underline: const SizedBox(),
                           isExpanded: true,
@@ -478,7 +486,7 @@ class _AdminStudentsViewState extends State<AdminStudentsView> {
                               _filterStudents();
                             });
                           },
-                          dropdownColor: CustomColors.appBarColor,
+                          dropdownColor: ThemeColors.appBarPrimary(context),
                           style: GoogleFonts.poppins(color: Colors.white),
                           underline: const SizedBox(),
                           isExpanded: true,
@@ -728,9 +736,7 @@ class _AdminStudentsViewState extends State<AdminStudentsView> {
                 ),
                 DataCell(
                   Text(
-                    student.timestamp != null
-                        ? '${student.timestamp.day}/${student.timestamp.month}/${student.timestamp.year}'
-                        : 'N/A',
+                    '${student.timestamp.day}/${student.timestamp.month}/${student.timestamp.year}',
                     style: GoogleFonts.poppins(
                       color: const Color.fromRGBO(41, 59, 39, 1),
                       fontSize: 12,

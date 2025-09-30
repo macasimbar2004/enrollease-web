@@ -1,6 +1,9 @@
 import 'package:enrollease_web/paginated_table/table/balance_acc_forms_table.dart';
 import 'package:enrollease_web/utils/bottom_credits.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
@@ -47,7 +50,9 @@ class _StatementOfAccountState extends State<StatementOfAccount> {
     final isSmallOrMediumScreen = ResponsiveWidget.isMediumScreen(context) ||
         ResponsiveWidget.isLargeScreen(context);
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Statement of Account',
         userId: widget.userId,
@@ -98,7 +103,10 @@ class _StatementOfAccountState extends State<StatementOfAccount> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CustomColors.contentColor.withValues(alpha: 0.2),
+              color: (Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context))
+                  .withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const FaIcon(

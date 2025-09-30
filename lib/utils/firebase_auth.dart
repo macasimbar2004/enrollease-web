@@ -10,6 +10,7 @@ import 'package:enrollease_web/utils/efficient_grade_service.dart';
 import 'package:enrollease_web/utils/grade_level_utils.dart';
 import 'package:enrollease_web/services/faculty_activity_service.dart';
 import 'package:enrollease_web/model/faculty_activity_model.dart';
+import 'package:enrollease_web/services/theme_cache_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -176,6 +177,16 @@ class FirebaseAuthProvider {
             await Provider.of<AccountDataController>(context, listen: false)
                 .setRegistrarData(registrar: registrar);
           }
+
+          // Save user session to cache to prevent login redirect on refresh
+          await ThemeCacheService.saveUserSession(
+            userId: registrar.id,
+            userEmail: registrar.email,
+            userName:
+                '${registrar.firstName} ${registrar.middleName} ${registrar.lastName}'
+                    .trim(),
+            userRole: registrar.userType ?? 'user',
+          );
 
           // Optionally, notify that sign-in was successful
           dPrint('User data successfully set in AccountDataController.');
@@ -591,7 +602,7 @@ class FirebaseAuthProvider {
       dPrint('Admin data saved successfully with ID: ${admin.id}.');
     } catch (e) {
       dPrint('Error saving admin data: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -833,7 +844,92 @@ class FirebaseAuthProvider {
       dPrint('Student $studentId promoted from $currentGrade to $nextGrade');
     } catch (e) {
       dPrint('Error promoting student: $e');
-      throw e;
+      rethrow;
     }
+  }
+
+  /// Check for cached user session and restore it
+  Future<bool> restoreCachedSession(BuildContext context) async {
+    try {
+      final sessionData = await ThemeCacheService.getCachedUserSession();
+      if (sessionData == null) {
+        dPrint('No cached session found');
+        return false;
+      }
+
+      final userId = sessionData['userId'] as String;
+      final userEmail = sessionData['userEmail'] as String;
+      final userName = sessionData['userName'] as String;
+      final userRole = sessionData['userRole'] as String;
+
+      dPrint('Found cached session for user: $userName ($userId)');
+
+      // Try to fetch fresh user data from Firebase
+      var docSnapshot = await _firestore.collection('admins').doc(userId).get();
+      var collectionName = 'admins';
+
+      if (!docSnapshot.exists) {
+        docSnapshot =
+            await _firestore.collection('faculty_staff').doc(userId).get();
+        collectionName = 'faculty_staff';
+      }
+
+      if (!docSnapshot.exists) {
+        docSnapshot =
+            await _firestore.collection('registrars').doc(userId).get();
+        collectionName = 'registrars';
+      }
+
+      if (!docSnapshot.exists) {
+        dPrint('User $userId no longer exists in database');
+        await ThemeCacheService.clearUserSession();
+        return false;
+      }
+
+      // Restore user data
+      final data = docSnapshot.data()!;
+      final registrar = FetchingRegistrarModel(
+        profilePicData: data['profilePicData'] ?? '',
+        id: data['id'] ?? '',
+        lastName: data['lastName'] ?? '',
+        firstName: data['firstName'] ?? '',
+        middleName: data['middleName'] ?? '',
+        dateOfBirth: data['dateOfBirth'] ?? '',
+        age: data['age'] ?? '',
+        contact: data['contact'] ?? '',
+        placeOfBirth: data['placeOfBirth'] ?? '',
+        address: data['address'] ?? '',
+        email: data['email'] ?? '',
+        remarks: data['remarks'] ?? '',
+        nameExtension: data['nameExtension'] ?? '',
+        password: data['password'] ?? '',
+        jobLevel: data['jobLevel'] ?? '',
+        userType: data['userType'],
+        roles: data['roles'] != null ? List<String>.from(data['roles']) : null,
+        status: data['status'],
+        gradeLevel: data['gradeLevel'],
+        profilePicLink: data['profilePicLink'],
+      );
+
+      // Set registrar data in AccountDataController
+      if (context.mounted) {
+        await Provider.of<AccountDataController>(context, listen: false)
+            .setRegistrarData(registrar: registrar);
+      }
+
+      dPrint('User session restored successfully for: $userName');
+      return true;
+    } catch (e) {
+      dPrint('Error restoring cached session: $e');
+      await ThemeCacheService.clearUserSession();
+      return false;
+    }
+  }
+
+  /// Clear user session (logout)
+  Future<void> signOut() async {
+    await ThemeCacheService.clearUserSession();
+    currentRegistrar = null;
+    dPrint('User signed out and session cleared');
   }
 }

@@ -13,6 +13,7 @@ import 'package:enrollease_web/utils/table_formatting.dart';
 import 'package:enrollease_web/widgets/custom_add_dialog.dart';
 import 'package:enrollease_web/widgets/custom_button.dart';
 import 'package:enrollease_web/widgets/custom_confirmation_dialog.dart';
+import 'package:enrollease_web/widgets/dynamic_logo.dart';
 import 'package:enrollease_web/widgets/custom_loading_dialog.dart';
 import 'package:enrollease_web/widgets/custom_toast.dart';
 import 'package:enrollease_web/widgets/discounts_to_apply.dart';
@@ -134,17 +135,18 @@ class EnrollmentsTableSource extends DataTableSource {
       }
 
       String cellValue = '';
-      
+
       // Format specific fields using utility functions
       if (field == 'enrollingGrade') {
-        cellValue = TableFormatting.formatGradeLevel(rowData[field]?.toString());
+        cellValue =
+            TableFormatting.formatGradeLevel(rowData[field]?.toString());
       } else if (field == 'status') {
         cellValue = TableFormatting.formatStatus(rowData[field]?.toString());
       } else {
         // Default formatting for other fields
         cellValue = rowData[field]?.toString() ?? '';
       }
-      
+
       return DataCell(
         SelectableText(
           cellValue,
@@ -183,119 +185,476 @@ class EnrollmentsTableSource extends DataTableSource {
     if (!context.mounted) return;
     return showDynamicDialog(
       context: context,
-      title: Column(
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              // Calculate responsive height based on screen width
-              final imageHeight =
-                  constraints.maxWidth * 0.15; // 15% of screen width
-              return Container(
-                width: double.infinity,
-                height: imageHeight,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Image.asset(
-                  'assets/logos/banner.png',
-                  fit: BoxFit.contain,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Registration Details',
-            style: TextStyle(fontSize: 20),
-          ),
-          const SizedBox(height: 5),
-          Text('Reg. #: ${rowData.regNo}')
-        ],
+      title: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              'Registration #: ${rowData.regNo}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
       contentWidgets: Column(
         children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Divider(color: Colors.black, endIndent: 20),
-                const SizedBox(height: 10),
-                const Text('PUPIL INFORMATION:',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                _buildText('First name', rowData.firstName),
-                _buildText('Middle name', rowData.middleName),
-                _buildText('Last name', rowData.lastName),
-                _buildText('Date of Birth', rowData.dateOfBirth),
-                _buildText('Address', rowData.address),
-                _buildText('Age', rowData.age.toString()),
-                _buildText('Gender', rowData.gender.name),
-                _buildText('Religion', rowData.religion),
-                _buildText('Mother Tongue', rowData.motherTongue),
-                _buildText('Civil Status', rowData.civilStatus.formalName()),
-                _buildText(
-                    'IP/ICC',
-                    rowData.ipOrIcc != null && rowData.ipOrIcc == true
-                        ? 'Yes'
-                        : 'No'),
-                if (rowData.sdaBaptismDate != null)
-                  _buildText('SDA baptism on', rowData.sdaBaptismDate ?? '--'),
-                const SizedBox(height: 10),
-                const Divider(color: Colors.black, endIndent: 20),
-                const SizedBox(height: 10),
-                const Text('FATHER\'S INFORMATION:',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                _buildText('First name', rowData.fathersFirstName),
-                _buildText('Middle name', rowData.fathersMiddleName),
-                _buildText('Last name', rowData.fathersLastName),
-                _buildText('Occupation', rowData.fathersOcc),
-                const Divider(color: Colors.black, endIndent: 20),
-                const SizedBox(height: 10),
-                const Text('MOTHER\'S INFORMATION:',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                _buildText('First name', rowData.mothersFirstName),
-                _buildText('Middle name', rowData.mothersMiddleName),
-                _buildText('Last name', rowData.mothersLastName),
-                _buildText('Occupation', rowData.mothersOcc),
-                const SizedBox(height: 10),
-                const Divider(color: Colors.black, endIndent: 20),
-                const SizedBox(height: 10),
-                const Text('CONTACT INFORMATION:',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                _buildText('Phone number', rowData.cellno.toString()),
-                const SizedBox(height: 10),
-                const Divider(color: Colors.black, endIndent: 20),
-                const SizedBox(height: 10),
-                const Text('ACADEMIC INFORMATION:',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                _buildText('Last School Attended', rowData.lastSchoolAttended),
-                _buildText('LRN', rowData.lrn),
-                if (rowData.unpaidBill <= 0)
-                  _buildText('Unpaid Bill', rowData.unpaidBill.toString()),
-                _buildText('Grade to Enroll',
-                    rowData.enrollingGrade.formalLongString()),
-                const SizedBox(height: 20),
-                const Divider(color: Colors.black, endIndent: 20),
-                const SizedBox(height: 10),
-                const Text('VALID CREDENTIALS:',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                ...credentialData.entries
-                    .map((e) => _buildCredBtn(e.key, e.value)),
-                const SizedBox(height: 5),
-                _buildText('Additional Info', rowData.additionalInfo),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
               ],
             ),
-          )
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Document header with school info and logos
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          // SDA Logo on the left
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            child: Image.asset(
+                              'assets/logos/SDALogo.png', // SmartEdu logo - always static
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          // School info in the center
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  'OROQUIETA SEVENTH-DAY ADVENTIST SCHOOL, INC.',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Student Registration Form',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Oroquieta City, Misamis Occidental',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          // Adventist Education logo on the right
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            child: const AdventistEducationLogo(
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(color: Colors.black, thickness: 1),
+                    const SizedBox(height: 16),
+                    const Text('PUPIL INFORMATION:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+
+                    // Name fields in a row layout
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'FULL NAME',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFormField(
+                                    'Last Name', rowData.lastName),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'First Name', rowData.firstName),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'Middle Name', rowData.middleName),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Personal Information
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'PERSONAL INFORMATION',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFormField(
+                                    'Date of Birth', rowData.dateOfBirth),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'Age', rowData.age.toString()),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'Gender', rowData.gender.name),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFormField(
+                                    'Religion', rowData.religion),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'Mother Tongue', rowData.motherTongue),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField('Civil Status',
+                                    rowData.civilStatus.formalName()),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFormField(
+                                    'IP/ICC',
+                                    rowData.ipOrIcc != null &&
+                                            rowData.ipOrIcc == true
+                                        ? 'Yes'
+                                        : 'No'),
+                              ),
+                              const SizedBox(width: 16),
+                              if (rowData.sdaBaptismDate != null)
+                                Expanded(
+                                  child: _buildFormField('SDA Baptism Date',
+                                      rowData.sdaBaptismDate ?? '--'),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Address
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'ADDRESS',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildFormField('Complete Address', rowData.address),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(color: Colors.black, endIndent: 20),
+                    const SizedBox(height: 10),
+                    const Text('FATHER\'S INFORMATION:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+
+                    // Father's Name fields in a row layout
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'FATHER\'S FULL NAME',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFormField(
+                                    'Last Name', rowData.fathersLastName),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'First Name', rowData.fathersFirstName),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'Middle Name', rowData.fathersMiddleName),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Father's Occupation
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'OCCUPATION',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildFormField(
+                              'Father\'s Occupation', rowData.fathersOcc),
+                        ],
+                      ),
+                    ),
+                    const Divider(color: Colors.black, endIndent: 20),
+                    const SizedBox(height: 10),
+                    const Text('MOTHER\'S INFORMATION:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+
+                    // Mother's Name fields in a row layout
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'MOTHER\'S FULL NAME',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFormField(
+                                    'Last Name', rowData.mothersLastName),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'First Name', rowData.mothersFirstName),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildFormField(
+                                    'Middle Name', rowData.mothersMiddleName),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Mother's Occupation
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'OCCUPATION',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildFormField(
+                              'Mother\'s Occupation', rowData.mothersOcc),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(color: Colors.black, endIndent: 20),
+                    const SizedBox(height: 10),
+                    const Text('CONTACT INFORMATION:',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    _buildText('Phone number', rowData.cellno.toString()),
+                    const SizedBox(height: 10),
+                    const Divider(color: Colors.black, endIndent: 20),
+                    const SizedBox(height: 10),
+                    const Text('ACADEMIC INFORMATION:',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    _buildText(
+                        'Last School Attended', rowData.lastSchoolAttended),
+                    _buildText('LRN', rowData.lrn),
+                    if (rowData.unpaidBill <= 0)
+                      _buildText('Unpaid Bill', rowData.unpaidBill.toString()),
+                    _buildText('Grade to Enroll',
+                        rowData.enrollingGrade.formalLongString()),
+                    const SizedBox(height: 20),
+                    const Divider(color: Colors.black, endIndent: 20),
+                    const SizedBox(height: 10),
+                    const Text('VALID CREDENTIALS:',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    ...credentialData.entries
+                        .map((e) => _buildCredBtn(e.key, e.value)),
+                    const SizedBox(height: 5),
+                    _buildText('Additional Info', rowData.additionalInfo),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       actionButtons: [
@@ -569,20 +928,75 @@ class EnrollmentsTableSource extends DataTableSource {
   }
 
   Widget _buildText(String title, String value) {
-    return Row(
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              '$title:',
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormField(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$title:',
-          style: const TextStyle(color: Colors.black, fontSize: 18),
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade600,
+          ),
         ),
-        const SizedBox(
-          width: 10,
+        const SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-              color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-        )
       ],
     );
   }

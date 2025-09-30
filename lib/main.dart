@@ -7,6 +7,9 @@ import 'package:enrollease_web/states_management/side_menu_drawer_controller.dar
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/states_management/statistics_model_data_controller.dart';
 import 'package:enrollease_web/states_management/user_context_provider.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
+import 'package:enrollease_web/states_management/footer_config_provider.dart';
+import 'package:enrollease_web/services/app_initialization_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -42,6 +45,12 @@ class EnrollEaseApp extends StatelessWidget {
           ),
           ChangeNotifierProvider(
             create: (context) => UserContextProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => ThemeProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => FooterConfigProvider(),
           ),
         ],
         child: MaterialApp.router(

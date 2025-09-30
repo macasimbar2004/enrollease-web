@@ -1,7 +1,7 @@
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:enrollease_web/utils/colors.dart';
 
 /// Configuration for filter options
 class FilterOption {
@@ -190,7 +190,7 @@ class _AdvancedFilterPanelState extends State<AdvancedFilterPanel> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: CustomColors.contentColor.withValues(alpha: 0.2),
+              color: ThemeColors.contentColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const FaIcon(
@@ -375,7 +375,7 @@ class _AdvancedFilterPanelState extends State<AdvancedFilterPanel> {
           color: Colors.white,
           fontSize: 14,
         ),
-        dropdownColor: CustomColors.appBarColor,
+        dropdownColor: ThemeColors.appBarPrimary(context),
         icon: const Icon(
           Icons.arrow_drop_down,
           color: Colors.white,
@@ -449,7 +449,7 @@ class _AdvancedFilterPanelState extends State<AdvancedFilterPanel> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: CustomColors.contentColor.withValues(alpha: 0.2),
+                      color: ThemeColors.contentColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -691,8 +691,8 @@ class _AdvancedFilterPanelState extends State<AdvancedFilterPanel> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  CustomColors.contentColor,
-                  CustomColors.contentColor.withValues(alpha: 0.8),
+                  ThemeColors.contentColor,
+                  ThemeColors.contentColor.withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(8),

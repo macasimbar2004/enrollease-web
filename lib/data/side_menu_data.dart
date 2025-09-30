@@ -58,6 +58,11 @@ class SideMenuData {
       requiredRoles: ['Super Admin'],
     ),
     MenuModel(
+      icon: Icons.palette,
+      title: 'Theme Customization',
+      requiredRoles: ['Super Admin'],
+    ),
+    MenuModel(
       icon: Icons.account_balance,
       title: 'Faculty & Staff',
       requiredRoles: ['Super Admin'],
@@ -65,37 +70,37 @@ class SideMenuData {
     MenuModel(
       icon: Icons.school,
       title: 'Enrollments',
-      requiredRoles: ['Super Admin', 'Registrar Officer'],
+      requiredRoles: ['Registrar Officer'],
     ),
     MenuModel(
       icon: Icons.account_balance_wallet,
       title: 'Statement of Account',
-      requiredRoles: ['Super Admin', 'Finance Officer'],
+      requiredRoles: ['Finance Officer'],
     ),
     MenuModel(
       icon: Icons.school,
       title: 'Students',
-      requiredRoles: ['Super Admin', 'Registrar Officer', 'Attendance Officer'],
+      requiredRoles: ['Registrar Officer', 'Attendance Officer'],
     ),
     MenuModel(
       icon: Icons.grade,
       title: 'Academic Grades',
-      requiredRoles: ['Super Admin', 'Teacher'],
+      requiredRoles: ['Teacher'],
     ),
     MenuModel(
       icon: Icons.people,
       title: 'Users',
-      requiredRoles: ['Super Admin', 'User Manager'],
+      requiredRoles: ['User Manager'],
     ),
     MenuModel(
       icon: Icons.announcement,
       title: 'Announcements',
-      requiredRoles: ['Super Admin', 'Communications Officer'],
+      requiredRoles: ['Communications Officer'],
     ),
     MenuModel(
       icon: Icons.list_alt,
       title: 'Student Logs',
-      requiredRoles: ['Super Admin', 'Attendance Officer'],
+      requiredRoles: ['Attendance Officer'],
     ),
   ];
 
@@ -129,7 +134,7 @@ class SideMenuData {
 
     final menuItem = menu.firstWhere(
       (item) => item.title == menuTitle,
-      orElse: () => MenuModel(icon: Icons.error, title: '', requiredRoles: []),
+      orElse: () => const MenuModel(icon: Icons.error, title: '', requiredRoles: []),
     );
 
     if (menuItem.title.isEmpty) return false;

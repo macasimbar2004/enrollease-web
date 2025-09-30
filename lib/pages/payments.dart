@@ -1,6 +1,8 @@
 import 'package:enrollease_web/paginated_table/table/payments_table.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/utils/bottom_credits.dart';
 import 'package:enrollease_web/widgets/add_payment_dialog.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
@@ -100,9 +102,11 @@ class _PaymentsPageState extends State<PaymentsPage> {
         ResponsiveWidget.isLargeScreen(context);
 
     if (data == null) {
-      return const Scaffold(
-        backgroundColor: CustomColors.appBarColor,
-        body: Center(
+      return Scaffold(
+        backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+                .currentColors['background'] ??
+            ThemeColors.background(context),
+        body: const Center(
           child: CircularProgressIndicator(
             color: Colors.white,
           ),
@@ -111,7 +115,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
     }
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: ThemeColors.appBarPrimary(context),
       appBar: AppBar(
         title: Text(
           'Payments',
@@ -121,7 +125,9 @@ class _PaymentsPageState extends State<PaymentsPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: CustomColors.contentColor,
+        backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+                .currentColors['content'] ??
+            ThemeColors.content(context),
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.3),
         leading: IconButton(
@@ -175,7 +181,10 @@ class _PaymentsPageState extends State<PaymentsPage> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CustomColors.contentColor.withValues(alpha: 0.2),
+              color: (Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context))
+                  .withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const FaIcon(
@@ -242,8 +251,13 @@ class _PaymentsPageState extends State<PaymentsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            CustomColors.contentColor,
-            CustomColors.contentColor.withValues(alpha: 0.8),
+            Provider.of<ThemeProvider>(context, listen: false)
+                    .currentColors['content'] ??
+                ThemeColors.content(context),
+            (Provider.of<ThemeProvider>(context, listen: false)
+                        .currentColors['content'] ??
+                    ThemeColors.content(context))
+                .withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(12),

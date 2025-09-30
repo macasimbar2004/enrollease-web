@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 Future<Uint8List> generateCertificateOfEnrollmentPdf({
   required String studentName,
@@ -12,13 +13,30 @@ Future<Uint8List> generateCertificateOfEnrollmentPdf({
   required DateTime dateIssued,
   String principalName = 'KIICHE P. NIETES, EdD',
   String principalTitle = 'School Principal',
+  String? bannerLogoUrl, // Optional dynamic banner logo URL
 }) async {
   final pdf = pw.Document();
 
-  // Load the banner image
-  final bannerImage = pw.MemoryImage(
-    (await rootBundle.load('assets/logos/banner.png')).buffer.asUint8List(),
-  );
+  // Load the banner image - try dynamic logo first, then fallback to static
+  pw.MemoryImage bannerImage;
+  try {
+    if (bannerLogoUrl != null && bannerLogoUrl.isNotEmpty) {
+      // Try to load dynamic logo from URL
+      final response = await http.get(Uri.parse(bannerLogoUrl));
+      if (response.statusCode == 200) {
+        bannerImage = pw.MemoryImage(response.bodyBytes);
+      } else {
+        throw Exception('Failed to load dynamic logo');
+      }
+    } else {
+      throw Exception('No dynamic logo URL provided');
+    }
+  } catch (e) {
+    // Fallback to static asset
+    bannerImage = pw.MemoryImage(
+      (await rootBundle.load('assets/logos/banner.png')).buffer.asUint8List(),
+    );
+  }
 
   final formattedDate =
       DateFormat("d'th' day of MMMM, yyyy").format(dateIssued);

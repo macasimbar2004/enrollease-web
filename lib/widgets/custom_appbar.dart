@@ -3,8 +3,11 @@ import 'package:enrollease_web/model/menu_model.dart';
 import 'package:enrollease_web/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 import 'package:enrollease_web/states_management/user_context_provider.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/utils/logos.dart';
+import 'package:enrollease_web/widgets/dynamic_logo.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,8 +59,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            CustomColors.contentColor,
-            CustomColors.contentColor.withValues(alpha: 0.9),
+            ThemeColors.appBarPrimary(context),
+            ThemeColors.appBarSecondary(context),
           ],
         ),
         boxShadow: [
@@ -183,7 +186,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                               children: [
                                 CircleAvatar(
                                   radius: 20,
-                                  backgroundColor: CustomColors.contentColor
+                                  backgroundColor: ThemeColors.appBarColor
                                       .withValues(alpha: 0.92),
                                   child: IconButton(
                                     icon: const Icon(
@@ -274,7 +277,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 children: [
                                   CircleAvatar(
                                     radius: 20,
-                                    backgroundColor: CustomColors.contentColor
+                                    backgroundColor: ThemeColors.appBarColor
                                         .withValues(alpha: 0.92),
                                     child: Material(
                                       color: Colors.transparent,
@@ -409,7 +412,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   color: Colors.red,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: CustomColors.contentColor,
+                                    color: Provider.of<ThemeProvider>(context,
+                                                listen: false)
+                                            .currentColors['content'] ??
+                                        ThemeColors.content(context),
                                     width: 2,
                                   ),
                                 ),
@@ -424,7 +430,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: CustomColors.contentColor,
+                                    color: Provider.of<ThemeProvider>(context,
+                                                listen: false)
+                                            .currentColors['content'] ??
+                                        ThemeColors.content(context),
                                     width: 1.5,
                                   ),
                                 ),
@@ -475,7 +484,9 @@ class CustomAppDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 24),
             width: double.infinity,
-            color: CustomColors.contentColor,
+            color: Provider.of<ThemeProvider>(context, listen: false)
+                    .currentColors['content'] ??
+                ThemeColors.content(context),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -492,9 +503,8 @@ class CustomAppDrawer extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Image.asset(
-                    CustomLogos.adventistLogo,
+                child: const Center(
+                  child: AdventistLogo(
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -580,7 +590,10 @@ class CustomAppDrawer extends StatelessWidget {
                           Icon(
                             accessibleMenuItems[index].icon,
                             color: isSelected
-                                ? CustomColors.contentColor
+                                ? (Provider.of<ThemeProvider>(context,
+                                            listen: false)
+                                        .currentColors['content'] ??
+                                    ThemeColors.content(context))
                                 : Colors.black54,
                             size: 20,
                           ),
@@ -593,7 +606,10 @@ class CustomAppDrawer extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 15,
                                 color: isSelected
-                                    ? CustomColors.contentColor
+                                    ? (Provider.of<ThemeProvider>(context,
+                                                listen: false)
+                                            .currentColors['content'] ??
+                                        ThemeColors.content(context))
                                     : Colors.black87,
                                 fontWeight: isSelected
                                     ? FontWeight.w600
@@ -613,7 +629,7 @@ class CustomAppDrawer extends StatelessWidget {
                         child: Icon(
                           accessibleMenuItems[index].icon,
                           color: isSelected
-                              ? CustomColors.contentColor
+                              ? ThemeColors.content(context)
                               : Colors.black54,
                           size: 20,
                         ),

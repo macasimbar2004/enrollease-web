@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:enrollease_web/paginated_table/data_source_stream/total_users_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/total_users_table_source.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -53,9 +54,9 @@ class _NewUsersTableState extends State<NewUsersTable> {
       stream: streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: SpinKitFadingCircle(
-              color: CustomColors.contentColor,
+              color: ThemeColors.content(context),
               size: 100.0,
             ),
           );

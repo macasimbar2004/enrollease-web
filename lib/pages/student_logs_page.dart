@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/paginated_table/table/student_logs_table.dart';
 import '../widgets/custom_body.dart';
-import '../utils/colors.dart';
+
+import '../utils/theme_colors.dart';
 import '../utils/bottom_credits.dart';
 import '../widgets/responsive_widget.dart';
+import '../states_management/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,7 +24,9 @@ class StudentLogsPage extends StatelessWidget {
         ResponsiveWidget.isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Student Logs',
         userId: userId,
@@ -39,7 +44,7 @@ class StudentLogsPage extends StatelessWidget {
                     FadeEffect(duration: 600.ms),
                     const SlideEffect(begin: Offset(0, 0.2), end: Offset.zero),
                   ],
-                  child: _buildHeaderSection(),
+                  child: _buildHeaderSection(context),
                 ),
                 const SizedBox(height: 30),
                 Animate(
@@ -60,7 +65,7 @@ class StudentLogsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection() {
+  Widget _buildHeaderSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
@@ -72,7 +77,10 @@ class StudentLogsPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: CustomColors.contentColor.withValues(alpha: 0.2),
+              color: (Provider.of<ThemeProvider>(context, listen: false)
+                          .currentColors['content'] ??
+                      ThemeColors.content(context))
+                  .withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const FaIcon(

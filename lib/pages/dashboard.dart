@@ -5,7 +5,9 @@ import 'package:enrollease_web/states_management/statistics_model_data_controlle
 import 'package:enrollease_web/model/statistics_model.dart';
 import 'package:enrollease_web/utils/app_size.dart';
 import 'package:enrollease_web/utils/bottom_credits.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
@@ -67,7 +69,9 @@ class _DashboardState extends State<Dashboard> {
         ResponsiveWidget.isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Dashboard',
         userId: widget.userId,
@@ -140,16 +144,17 @@ class _DashboardState extends State<Dashboard> {
   buildStatistics(List<StatisticsModel> statisticsData) {
     return LayoutBuilder(builder: (context, constraints) {
       final bool isSmallScreen = constraints.maxWidth < 800;
-      final double cardWidth = isSmallScreen
-          ? 280.0
-          : 350.0;
-      final double horizontalSpacing = isSmallScreen ? 12.0 : AppSizes.blockSizeHorizontal * 3;
+      final double cardWidth = isSmallScreen ? 280.0 : 350.0;
+      final double horizontalSpacing =
+          isSmallScreen ? 12.0 : AppSizes.blockSizeHorizontal * 3;
 
       final children = statisticsData.asMap().entries.map((entry) {
         final int index = entry.key;
         final stat = entry.value;
         return Padding(
-          padding: EdgeInsets.only(right: index == statisticsData.length - 1 ? 0 : horizontalSpacing),
+          padding: EdgeInsets.only(
+              right:
+                  index == statisticsData.length - 1 ? 0 : horizontalSpacing),
           child: SizedBox(
             width: cardWidth,
             child: _buildStatCard(stat, cardWidth),
@@ -205,16 +210,20 @@ class _DashboardState extends State<Dashboard> {
             style: GoogleFonts.poppins(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: CustomColors.appBarColor,
+              color: Provider.of<ThemeProvider>(context, listen: false)
+                      .currentColors['content'] ??
+                  ThemeColors.appBarPrimary(context),
             ),
           ),
         ],
       ),
     )
         .animate(onPlay: (controller) => controller.repeat())
-        .shimmer(duration: 2.seconds, color: Colors.white.withValues(alpha: 0.2))
+        .shimmer(
+            duration: 2.seconds, color: Colors.white.withValues(alpha: 0.2))
         .then()
-        .shimmer(duration: 2.seconds, color: Colors.white.withValues(alpha: 0.2));
+        .shimmer(
+            duration: 2.seconds, color: Colors.white.withValues(alpha: 0.2));
   }
 
   Widget _getIconForStat(String title) {

@@ -6,7 +6,9 @@ import 'package:enrollease_web/model/faculty_activity_model.dart';
 import 'package:enrollease_web/services/faculty_activity_service.dart';
 import 'package:enrollease_web/utils/app_size.dart';
 import 'package:enrollease_web/utils/bottom_credits.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
+import 'package:enrollease_web/states_management/theme_provider.dart';
 import 'package:enrollease_web/widgets/custom_appbar.dart';
 import 'package:enrollease_web/widgets/custom_body.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
@@ -121,7 +123,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ResponsiveWidget.isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: CustomColors.appBarColor,
+      backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['background'] ??
+          ThemeColors.background(context),
       appBar: CustomAppBar(
         title: 'Admin Dashboard',
         userId: widget.userId,
@@ -921,7 +925,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             style: GoogleFonts.poppins(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: CustomColors.appBarColor,
+              color: Provider.of<ThemeProvider>(context, listen: false)
+                      .currentColors['appBar'] ??
+                  Provider.of<ThemeProvider>(context, listen: false)
+                      .currentColors['appBar'] ??
+                  ThemeColors.appBarPrimary(context),
             ),
           ),
         ],
@@ -952,7 +960,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
     return FaIcon(
       iconData,
-      color: CustomColors.appBarColor,
+      color: Provider.of<ThemeProvider>(context, listen: false)
+              .currentColors['appBar'] ??
+          ThemeColors.appBarPrimary(context),
       size: 24,
     );
   }

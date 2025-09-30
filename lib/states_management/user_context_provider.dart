@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:enrollease_web/utils/rbac_service.dart';
+import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
 
 /// User Context Provider
 /// Manages current user information and role-based access control
@@ -67,6 +68,7 @@ class UserContextProvider extends ChangeNotifier {
     required String status,
     String? gradeLevel,
     String? profilePic,
+    SideMenuIndexController? menuController,
   }) {
     _userId = id;
     _userName = name;
@@ -76,6 +78,12 @@ class UserContextProvider extends ChangeNotifier {
     _userStatus = status;
     _userGradeLevel = gradeLevel;
     _userProfilePic = profilePic;
+
+    // Initialize menu index to first accessible item for this user's roles
+    if (menuController != null) {
+      menuController.initializeForUserRoles(roles);
+    }
+
     notifyListeners();
   }
 
@@ -86,6 +94,7 @@ class UserContextProvider extends ChangeNotifier {
     required String email,
     required String role,
     required bool isActive,
+    SideMenuIndexController? menuController,
   }) {
     _userId = uid;
     _userName = userName;
@@ -95,6 +104,12 @@ class UserContextProvider extends ChangeNotifier {
     _userStatus = isActive ? 'active' : 'disabled';
     _userGradeLevel = null;
     _userProfilePic = null;
+
+    // Initialize menu index to first accessible item for this user's roles
+    if (menuController != null) {
+      menuController.initializeForUserRoles([role]);
+    }
+
     notifyListeners();
   }
 

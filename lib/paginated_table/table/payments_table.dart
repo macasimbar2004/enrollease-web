@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:enrollease_web/paginated_table/data_source_stream/payments_source_stream.dart';
 import 'package:enrollease_web/paginated_table/source/payments_table_source.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/search_textformfields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 class PaymentsTable extends StatefulWidget {
   final String userId;
   final String balanceAccID;
-  const PaymentsTable({required this.userId, required this.balanceAccID, super.key});
+  const PaymentsTable(
+      {required this.userId, required this.balanceAccID, super.key});
 
   @override
   State<PaymentsTable> createState() => _PaymentsTableState();
@@ -26,14 +28,16 @@ class _PaymentsTableState extends State<PaymentsTable> {
     super.initState();
     streamController = StreamController<List<Map<String, dynamic>>>.broadcast();
     _horizontalScrollController = ScrollController();
-    paymentsStreamDataSource(context, streamController, _searchQuery, widget.balanceAccID);
+    paymentsStreamDataSource(
+        context, streamController, _searchQuery, widget.balanceAccID);
   }
 
   void _onSearchChanged(String query) {
     if (mounted) {
       setState(() {
         _searchQuery = query;
-        paymentsStreamDataSource(context, streamController, _searchQuery, widget.balanceAccID);
+        paymentsStreamDataSource(
+            context, streamController, _searchQuery, widget.balanceAccID);
       });
     }
   }
@@ -55,9 +59,9 @@ class _PaymentsTableState extends State<PaymentsTable> {
       stream: streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: SpinKitFadingCircle(
-              color: CustomColors.contentColor,
+              color: ThemeColors.content(context),
               size: 100.0,
             ),
           );
@@ -79,7 +83,8 @@ class _PaymentsTableState extends State<PaymentsTable> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   controller: _horizontalScrollController,
-                  physics: const ClampingScrollPhysics(), // Enables touch scrolling on mobile
+                  physics:
+                      const ClampingScrollPhysics(), // Enables touch scrolling on mobile
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minWidth: constraints.maxWidth,
@@ -90,19 +95,22 @@ class _PaymentsTableState extends State<PaymentsTable> {
                           ? const Center(
                               child: Text(
                                 'No payments yet',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
                               ),
                             )
                           : PaginatedDataTable(
                               header: SearchTextformfields(
                                 onSearch: _onSearchChanged,
                               ),
-                              source: PaymentsTableSource(context, data, widget.userId),
+                              source: PaymentsTableSource(
+                                  context, data, widget.userId),
                               showFirstLastButtons: true,
                               rowsPerPage: 5,
                               dataRowMinHeight: 40,
                               dataRowMaxHeight: 86,
-                              columns: _buildDataColumns(), // Use helper function to build columns
+                              columns:
+                                  _buildDataColumns(), // Use helper function to build columns
                             ),
                     ),
                   ),

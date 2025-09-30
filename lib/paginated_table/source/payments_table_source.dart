@@ -35,7 +35,9 @@ class PaymentsTableSource extends DataTableSource {
     // ]; // Column labels
 
     return fields.map((field) {
-      String cellValue = field == 'amount' ? rowData[field].totalFormatted() : rowData[field].toString();
+      String cellValue = field == 'amount'
+          ? rowData[field].totalFormatted()
+          : rowData[field].toString();
       if (field == 'action') {
         dPrint('row data is $rowData');
         return DataCell(ElevatedButton(
@@ -51,7 +53,8 @@ class PaymentsTableSource extends DataTableSource {
             );
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-          child: const Text('View breakdown', style: TextStyle(color: Colors.white)),
+          child: const Text('View breakdown',
+              style: TextStyle(color: Colors.white)),
         ));
       }
 
@@ -87,8 +90,8 @@ class PaymentBreakdown extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Payment breakdown',
-              style: TextStyle(fontSize: 18),
+              'Payment Breakdown',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             ...payment.amount == null
                 ? [const Text('Error reading individual breakdown')]
@@ -115,7 +118,10 @@ class PaymentBreakdown extends StatelessWidget {
                     Nav.pop(context);
                   },
                   btnTxt: 'Back',
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                  textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 18),
                 ),
               ],
             ),

@@ -168,7 +168,7 @@ class AccountDataController extends ChangeNotifier {
     await prefs.setString('currentPassword', registrar.password);
     await prefs.setString(
         'userRole', registrar.jobLevel); // Handle nullable jobLevel for role
-    
+
     // Save RBAC fields
     if (registrar.userType != null) {
       await prefs.setString('userType', registrar.userType!);
@@ -270,7 +270,7 @@ class AccountDataController extends ChangeNotifier {
       await prefs.remove('nameExtension');
       await prefs.remove('currentPassword');
       await prefs.remove('userRole');
-      
+
       // Clear RBAC fields
       await prefs.remove('userType');
       await prefs.remove('userRoles');

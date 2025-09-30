@@ -1,5 +1,6 @@
 // import 'package:enrollease_web/paginated_table/table/pupils_table.dart.dart';
-// import 'package:enrollease_web/utils/colors.dart';
+//
+import 'package:enrollease_web/utils/theme_colors.dart';
 // import 'package:enrollease_web/widgets/custom_header.dart';
 // import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: CustomColors.contentColor,
+//       backgroundColor: ThemeColors.content(context),
 //       body: SafeArea(
 //           child: Column(
 //         children: [

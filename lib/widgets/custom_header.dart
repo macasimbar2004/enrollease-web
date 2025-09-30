@@ -1,7 +1,8 @@
 import 'package:enrollease_web/account_screen/menu/account_setting.dart';
 import 'package:enrollease_web/states_management/side_menu_drawer_controller.dart';
 import 'package:enrollease_web/states_management/side_menu_index_controller.dart';
-import 'package:enrollease_web/utils/colors.dart';
+
+import 'package:enrollease_web/utils/theme_colors.dart';
 import 'package:enrollease_web/widgets/responsive_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,11 @@ class CustomDrawerHeader extends StatefulWidget {
   final String? userId;
   final bool? isToHide;
 
-  const CustomDrawerHeader({super.key, required this.headerName, this.userId, this.isToHide = false});
+  const CustomDrawerHeader(
+      {super.key,
+      required this.headerName,
+      this.userId,
+      this.isToHide = false});
 
   @override
   CustomDrawerHeaderState createState() => CustomDrawerHeaderState();
@@ -36,11 +41,11 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
 
     return DrawerHeader(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: const BoxDecoration(
-        border: Border(
+      decoration: BoxDecoration(
+        border: const Border(
           bottom: BorderSide.none,
         ),
-        color: CustomColors.contentColor,
+        color: ThemeColors.content(context),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -60,7 +65,8 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
             child: IconButton(
               onPressed: menuProvider.isButtonDisabled
                   ? null // Disable the button if true
-                  : () => context.read<SideMenuDrawerController>().controlMenu(),
+                  : () =>
+                      context.read<SideMenuDrawerController>().controlMenu(),
               icon: const Icon(
                 Icons.menu,
                 color: Colors.white,
@@ -73,50 +79,51 @@ class CustomDrawerHeaderState extends State<CustomDrawerHeader> {
               style: const TextStyle(color: Colors.white, fontSize: 30),
             ),
           const Spacer(),
-          if (widget.isToHide == null || widget.isToHide == false) const AdminAccountSetting(),
           if (widget.isToHide == null || widget.isToHide == false)
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () {
-                  // Handle notification button press
-                  menuProvider.setSelectedIndex(0);
-                  menuProvider.setCurrentSelectedIndex(0);
-                },
-                icon: const Icon(
-                  Icons.notifications,
-                  size: 30,
-                  color: Colors.white,
+            const AdminAccountSetting(),
+          if (widget.isToHide == null || widget.isToHide == false)
+            Stack(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    // Handle notification button press
+                    menuProvider.setSelectedIndex(0);
+                    menuProvider.setCurrentSelectedIndex(0);
+                  },
+                  icon: const Icon(
+                    Icons.notifications,
+                    size: 30,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              if (notificationCount > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Center(
-                      child: Text(
-                        notificationCount.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                if (notificationCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Center(
+                        child: Text(
+                          notificationCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );
